@@ -2,10 +2,18 @@ package com.pgs.openskyingest.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
+@ToString
+@Document(collection = "aircraftMetadata")
 public class AircraftMetadata {
+    @Id
+    private String id;
+
     private String registration;
     private String manufacturerName;
     private String manufacturerIcao;
@@ -37,4 +45,7 @@ public class AircraftMetadata {
     private String firstSeen;
     private String icao24;
     private Long timestamp;
+
+    // flag indicate whether we should track this aircarft or not
+    private Boolean isTracking = Boolean.FALSE;
 }

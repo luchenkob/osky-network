@@ -7,8 +7,8 @@ public interface ConfigManagmentService {
      * 1. take tailNumber of aircraft
      * 2. invoke opensky api to get icao24 corresponding to this tailNumber
      * 3. after having icao24, we'll invoke get metadata of aircraft
-     * @param tailNumber
+     * @param tailNumbers
      * @return number of document had been inserted
      */
-    int insertWatchingAircaftConfig(String tailNumber) ;
+    int insertWatchingAircaftConfig(String... tailNumbers) ;
 }
