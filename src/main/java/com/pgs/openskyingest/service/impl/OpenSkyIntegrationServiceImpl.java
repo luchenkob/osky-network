@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgs.openskyingest.constant.Constant;
 import com.pgs.openskyingest.model.AircraftMetadata;
+import com.pgs.openskyingest.model.AircraftPosition;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -13,6 +14,9 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService {
@@ -45,7 +49,7 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
     }
 
     @Override
-    public AircraftMetadata getMetadataOfAirCraft(String icao24) {
+    public AircraftMetadata getMetadataOfAircraft(String icao24) {
         CloseableHttpClient client = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet("https://opensky-network.org/api/metadata/aircraft/icao/" + icao24);
 
@@ -58,6 +62,45 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
             client.close();
 
             return aircraftMetadata;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @Override
+    public List<AircraftPosition> getAllStateVectorOfAircraft(String icao24, Long timestamp) {
+        logger.info("Getting all state vectors of aircraft {} at {}", icao24, timestamp);
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet("https://tinnt:dnMdFfeKDcf9vQ!@opensky-network.org/api/states/all?icao24=" + icao24 + "&time=" + timestamp);
+
+        try (CloseableHttpResponse response = client.execute(httpGet)) {
+            String json = EntityUtils.toString(response.getEntity());
+            JsonNode states = objectMapper.readTree(json).path("states");
+            List<AircraftPosition> aircraftPositions = new ArrayList<>();
+
+            if (states.isArray()) {
+                for (final JsonNode state : states) {
+                    AircraftPosition aircraftPosition = new AircraftPosition();
+                    aircraftPosition.setIcao24(state.path(0).asText());
+                    aircraftPosition.setTimePosition(state.path(3).asLong());
+                    aircraftPosition.setLongitude(state.path(5).asDouble());
+                    aircraftPosition.setLatitude(state.path(6).asDouble());
+                    aircraftPosition.setBaroAltitude(state.path(7).asDouble());
+                    aircraftPosition.setOnGround(state.path(8).asBoolean());
+                    aircraftPosition.setVerticalRate(state.path(9).asDouble());
+                    aircraftPosition.setTrueTrack(state.path(10).asDouble());
+
+                    logger.info("Aircraft position obtain from state array: {}", aircraftPosition.toString());
+                    aircraftPositions.add(aircraftPosition);
+                }
+            }
+
+            response.close();
+            client.close();
+
+            return aircraftPositions;
         } catch (Exception e) {
             e.printStackTrace();
         }

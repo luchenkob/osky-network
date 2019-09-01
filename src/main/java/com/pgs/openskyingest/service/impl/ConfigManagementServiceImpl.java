@@ -37,7 +37,7 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
             Runnable runnable = () -> {
                 String icao24 = openSkyIntegrationService.getIcao24FromTailNumber(tailNumber);
                 if (!Constant.ICAO24_NOT_FOUND.equalsIgnoreCase(icao24)) {
-                    AircraftMetadata aircraftMetadata = openSkyIntegrationService.getMetadataOfAirCraft(icao24);
+                    AircraftMetadata aircraftMetadata = openSkyIntegrationService.getMetadataOfAircraft(icao24);
 
                     if (aircraftMetadata != null) {
                         aircraftMetadata.setIsTracking(Boolean.TRUE);

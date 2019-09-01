@@ -23,7 +23,12 @@ public class OpenSkyeIntegrationServiceTests {
 
     @Test
     public void getAircraftMetadata() {
-        AircraftMetadata aircraftMetadata = openSkyIntegrationService.getMetadataOfAirCraft("a0c882");
+        AircraftMetadata aircraftMetadata = openSkyIntegrationService.getMetadataOfAircraft("a0c882");
         Assert.assertEquals("a0c882", aircraftMetadata.getIcao24());
+    }
+
+    @Test
+    public void getAllStateVectorOfAircraft() {
+        openSkyIntegrationService.getAllStateVectorOfAircraft("a11780", 1565656614l);
     }
 }
