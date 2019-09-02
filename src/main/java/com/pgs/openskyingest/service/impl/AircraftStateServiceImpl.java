@@ -28,11 +28,12 @@ public class AircraftStateServiceImpl implements AircraftStateService {
 
     @Override
     public void getCurrentStateVectorOfWatchingAircrafts() {
-        ExecutorService executor = Executors.newFixedThreadPool(4);
+        ExecutorService executor = Executors.newFixedThreadPool(3);
 
+        long currentEpoch = Instant.now().getEpochSecond();
         getAllWatchingAircrafts().forEach(icao24 -> {
             Runnable runnable = () -> {
-                List<AircraftPosition> positions = openSkyIntegrationService.getAllStateVectorOfAircraft(icao24, Instant.now().getEpochSecond());
+                List<AircraftPosition> positions = openSkyIntegrationService.getAllStateVectorOfAircraft(icao24, currentEpoch);
                 aircraftPositionRepository.saveAll(positions);
             };
 
@@ -42,6 +43,11 @@ public class AircraftStateServiceImpl implements AircraftStateService {
         executor.shutdown();
         while (!executor.isTerminated()) {
         }
+    }
+
+    @Override
+    public List<AircraftPosition> retrieveAircraftPositionInTime(String icao24, Long fromTimestamp, Long toTimestamp) {
+        return aircraftPositionRepository.findAircraftPositionsByIcao24EqualsAndTimePositionBetween(icao24, fromTimestamp, toTimestamp);
     }
 
     private List<String> getAllWatchingAircrafts() {

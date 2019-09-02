@@ -71,12 +71,12 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
 
     @Override
     public List<AircraftPosition> getAllStateVectorOfAircraft(String icao24, Long timestamp) {
-        logger.info("Getting all state vectors of aircraft {} at {}", icao24, timestamp);
         CloseableHttpClient client = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet("https://tinnt:dnMdFfeKDcf9vQ!@opensky-network.org/api/states/all?icao24=" + icao24 + "&time=" + timestamp);
 
         try (CloseableHttpResponse response = client.execute(httpGet)) {
             String json = EntityUtils.toString(response.getEntity());
+            logger.info("Returned state vectors of aircraft {} at {}: {}", icao24, timestamp, json);
             JsonNode states = objectMapper.readTree(json).path("states");
             List<AircraftPosition> aircraftPositions = new ArrayList<>();
 

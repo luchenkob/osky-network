@@ -30,19 +30,24 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
     public int insertWatchingAircaftConfig(String... tailNumbers) {
         logger.info("Adding config of {} aircrafts", tailNumbers.length);
 
-        ExecutorService executor = Executors.newFixedThreadPool(5);
+        // OpenSky seem that does not allow more than 2 concurrent request from the same client
+        ExecutorService executor = Executors.newFixedThreadPool(2);
 
         List<AircraftMetadata> listAircrafts = new ArrayList<>();
         for (String tailNumber : tailNumbers) {
             Runnable runnable = () -> {
-                String icao24 = openSkyIntegrationService.getIcao24FromTailNumber(tailNumber);
-                if (!Constant.ICAO24_NOT_FOUND.equalsIgnoreCase(icao24)) {
-                    AircraftMetadata aircraftMetadata = openSkyIntegrationService.getMetadataOfAircraft(icao24);
+                if (aircraftMetadataRepository.findAircraftMetadataByRegistration(tailNumber) == null) {
+                    String icao24 = openSkyIntegrationService.getIcao24FromTailNumber(tailNumber);
+                    if (!Constant.ICAO24_NOT_FOUND.equalsIgnoreCase(icao24)) {
+                        AircraftMetadata aircraftMetadata = openSkyIntegrationService.getMetadataOfAircraft(icao24);
 
-                    if (aircraftMetadata != null) {
-                        aircraftMetadata.setIsTracking(Boolean.TRUE);
-                        listAircrafts.add(aircraftMetadata);
+                        if (aircraftMetadata != null) {
+                            aircraftMetadata.setIsTracking(Boolean.TRUE);
+                            listAircrafts.add(aircraftMetadata);
+                        }
                     }
+                } else {
+                    logger.info("{} had existed in database", tailNumber);
                 }
             };
             executor.execute(runnable);
@@ -57,6 +62,21 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
         }
 
         return listAircrafts.size();
+    }
+
+    @Override
+    public AircraftMetadata retrieveAircraftMetadataByIcao24(String icao24) {
+        return aircraftMetadataRepository.findAircraftMetadataByIcao24(icao24);
+    }
+
+    @Override
+    public AircraftMetadata retrieveAircraftMetadataByRegistration(String registration) {
+        return aircraftMetadataRepository.findAircraftMetadataByRegistration(registration);
+    }
+
+    @Override
+    public List<AircraftMetadata> retrieveAllAircraft() {
+        return aircraftMetadataRepository.findAll();
     }
 
 }

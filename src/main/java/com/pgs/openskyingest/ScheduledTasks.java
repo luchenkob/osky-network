@@ -14,7 +14,7 @@ public class ScheduledTasks {
    @Autowired
    private AircraftStateService aircraftStateService;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 15000)
     public void updateStateOfWatchingAircrafts() {
         logger.info("Trigger getting and updating all watching aircraft");
         aircraftStateService.getCurrentStateVectorOfWatchingAircrafts();
