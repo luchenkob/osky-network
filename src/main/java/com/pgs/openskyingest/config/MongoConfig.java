@@ -1,16 +1,7 @@
 package com.pgs.openskyingest.config;
 
-import com.mongodb.MongoClient;
-import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-public class MongoConfig extends AbstractMongoConfiguration {
-    @Override
-    public MongoClient mongoClient() {
-        return new MongoClient("127.0.0.1", 27017);
-    }
-
-    @Override
-    protected String getDatabaseName() {
-        return "aircraft_tracking";
-    }
+@EnableMongoRepositories(basePackages = {"com.pgs.openskyingest.repository"})
+public class MongoConfig {
 }
