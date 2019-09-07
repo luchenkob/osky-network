@@ -133,6 +133,7 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
     @Override
     public List<AircraftPosition> getTrackedPositionOfAircraft(String icao24, Long time) {
         CloseableHttpClient client = HttpClients.createDefault();
+        logger.info("Get tracked positions of aircraft {} at time {}", icao24, time);
         HttpGet httpGet = new HttpGet("https://tinnt:dnMdFfeKDcf9vQ!@opensky-network.org/api/tracks/all?icao24=" + icao24 + "&time=" + time);
 
         try (CloseableHttpResponse response = client.execute(httpGet)) {
