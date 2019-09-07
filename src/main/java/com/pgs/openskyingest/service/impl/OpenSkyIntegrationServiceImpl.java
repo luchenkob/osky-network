@@ -1,8 +1,10 @@
 package com.pgs.openskyingest.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgs.openskyingest.constant.Constant;
+import com.pgs.openskyingest.model.AircraftFlight;
 import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftPosition;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
@@ -105,6 +107,57 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
             e.printStackTrace();
         }
 
+        return null;
+    }
+
+    @Override
+    public List<AircraftFlight> getFlightsOfAircraft(String icao24, Long begin, Long end) {
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet("https://tinnt:dnMdFfeKDcf9vQ!@opensky-network.org/api/flights/aircraft?icao24="
+                + icao24
+                + "&begin=" + begin
+                + "&end=" + end);
+
+        try (CloseableHttpResponse response = client.execute(httpGet)) {
+            String json = EntityUtils.toString(response.getEntity());
+            logger.info("Returned flights of aircraft {} between {} and {} is: {}", icao24, begin, end, json);
+            return objectMapper.readValue(json, new TypeReference<List<AircraftFlight>>(){});
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @Override
+    public List<AircraftPosition> getTrackedPositionOfAircraft(String icao24, Long time) {
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet("https://tinnt:dnMdFfeKDcf9vQ!@opensky-network.org/api/tracks/all?icao24=" + icao24 + "&time=" + time);
+
+        try (CloseableHttpResponse response = client.execute(httpGet)) {
+            String json = EntityUtils.toString(response.getEntity());
+            JsonNode paths = objectMapper.readTree(json).path("path");
+            List<AircraftPosition> aircraftPositions = new ArrayList<>();
+            if (paths.isArray()) {
+                for (final JsonNode path : paths) {
+                    AircraftPosition aircraftPosition = new AircraftPosition();
+                    aircraftPosition.setIcao24(icao24);
+                    aircraftPosition.setTimePosition(path.path(0).asLong());
+                    aircraftPosition.setLatitude(path.path(1).asDouble());
+                    aircraftPosition.setLongitude(path.path(2).asDouble());
+                    aircraftPosition.setBaroAltitude(path.path(3).asDouble());
+                    aircraftPosition.setTrueTrack(path.path(4).asDouble());
+                    aircraftPosition.setOnGround(path.path(5).asBoolean());
+
+                    aircraftPositions.add(aircraftPosition);
+                }
+            }
+
+            return aircraftPositions;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
 }
