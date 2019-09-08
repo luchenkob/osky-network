@@ -56,6 +56,13 @@
 			<version>${jackson.version}</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.9</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -94,7 +101,7 @@
 					</includes>
 					<jdkVersion>${java.version}</jdkVersion>
 					<processTypes>
-						<web>java $JAVA_OPTS -jar ${project.build.directory}/${project.build.finalName}.jar</web>
+						<web>java -jar ${project.build.directory}/${project.build.finalName}.jar</web>
 					</processTypes>
 				</configuration>
 			</plugin>
