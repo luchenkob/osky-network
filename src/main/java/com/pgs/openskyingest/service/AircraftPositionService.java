@@ -6,14 +6,9 @@ import java.util.List;
 
 public interface AircraftPositionService {
 
-    List<AircraftPosition> retrieveAircraftPositionInTime(String icao24, Long fromTimestamp, Long toTimestamp);
+    List<AircraftPosition> retrieveAircraftPositionInTime(String tailNumber, Long fromTimestamp, Long toTimestamp);
 
-    /**
-     * Just invoke opensky api /track with time = 0
-     * @param icao24
-     * @return
-     */
-    List<AircraftPosition> retrieveCurrentAircraftPosition(String icao24);
+    List<AircraftPosition> retrieveCurrentAircraftPosition(String tailNumber);
 
     /**
      * This method will do:

@@ -19,11 +19,11 @@ public class AircraftFlightController {
     @Autowired
     private AircraftFlightService aircraftFlightService;
 
-    @RequestMapping(value = "/aircraft/{icao24}/flight", method = RequestMethod.GET)
-    public List<AircraftFlight> getAllPositionOfAircraftFrom(@PathVariable String icao24,
+    @RequestMapping(value = "/aircraft/{tailNumber}/flight", method = RequestMethod.GET)
+    public List<AircraftFlight> getAllPositionOfAircraftFrom(@PathVariable String tailNumber,
                                                              @RequestParam(value = "from") Long fromTimestamp,
                                                              @RequestParam(value = "to") Long toTimestamp) {
-        return aircraftFlightService.retrieveAircraftFlightInTime(icao24, fromTimestamp, toTimestamp);
+        return aircraftFlightService.retrieveAircraftFlightInTime(tailNumber, fromTimestamp, toTimestamp);
     }
 
 }

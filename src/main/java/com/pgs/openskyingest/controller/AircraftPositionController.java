@@ -19,15 +19,15 @@ public class AircraftPositionController {
     @Autowired
     private AircraftPositionService aircraftPositionService;
 
-    @RequestMapping(value = "/aircraft/{icao24}/position", method = RequestMethod.GET)
-    public List<AircraftPosition> getAllPositionOfAircraftFrom(@PathVariable String icao24,
+    @RequestMapping(value = "/aircraft/{tailNumber}/position", method = RequestMethod.GET)
+    public List<AircraftPosition> getAllPositionOfAircraftFrom(@PathVariable String tailNumber,
                                                                @RequestParam(value = "from") Long fromTimestamp,
                                                                @RequestParam(value = "to") Long toTimestamp) {
-        return aircraftPositionService.retrieveAircraftPositionInTime(icao24, fromTimestamp, toTimestamp);
+        return aircraftPositionService.retrieveAircraftPositionInTime(tailNumber, fromTimestamp, toTimestamp);
     }
 
-    @RequestMapping(value = "/aircraft/{icao24}/position/current", method = RequestMethod.GET)
-    public List<AircraftPosition> getAllPositionOfAircraftFrom(@PathVariable String icao24) {
-        return aircraftPositionService.retrieveCurrentAircraftPosition(icao24);
+    @RequestMapping(value = "/aircraft/{tailNumber}/position/current", method = RequestMethod.GET)
+    public List<AircraftPosition> getAllPositionOfAircraftFrom(@PathVariable String tailNumber) {
+        return aircraftPositionService.retrieveCurrentAircraftPosition(tailNumber);
     }
 }

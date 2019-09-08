@@ -1,8 +1,10 @@
 package com.pgs.openskyingest.service.impl;
 
 import com.pgs.openskyingest.model.AircraftFlight;
+import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftPosition;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
+import com.pgs.openskyingest.repository.AircraftMetadataRepository;
 import com.pgs.openskyingest.repository.AircraftPositionRepository;
 import com.pgs.openskyingest.service.AircraftPositionService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
@@ -19,6 +21,9 @@ import java.util.stream.Collectors;
 public class AircraftPositionServiceImpl implements AircraftPositionService {
 
     @Autowired
+    private AircraftMetadataRepository aircraftMetadataRepository;
+
+    @Autowired
     private AircraftPositionRepository aircraftPositionRepository;
 
     @Autowired
@@ -28,12 +33,14 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
     private OpenSkyIntegrationService openSkyIntegrationService;
 
     @Override
-    public List<AircraftPosition> retrieveAircraftPositionInTime(String icao24, Long fromTime, Long toTime) {
+    public List<AircraftPosition> retrieveAircraftPositionInTime(String tailNumber, Long fromTime, Long toTime) {
+        String icao24 = aircraftMetadataRepository.findAircraftMetadataByRegistration(tailNumber).getIcao24();
         return aircraftPositionRepository.findAircraftPositionsByIcao24EqualsAndTimePositionBetween(icao24, fromTime, toTime);
     }
 
     @Override
-    public List<AircraftPosition> retrieveCurrentAircraftPosition(String icao24) {
+    public List<AircraftPosition> retrieveCurrentAircraftPosition(String tailNumber) {
+        String icao24 = aircraftMetadataRepository.findAircraftMetadataByRegistration(tailNumber).getIcao24();
         return openSkyIntegrationService.getAllStateVectorOfAircraft(icao24, Instant.now().getEpochSecond());
     }
 
