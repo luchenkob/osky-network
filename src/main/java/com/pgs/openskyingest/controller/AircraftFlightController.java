@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:4200" })
+@CrossOrigin(origins = { "http://localhost:3000", "https://opensky-ingest-fe.herokuapp.com" })
 @RestController
 public class AircraftFlightController {
 
