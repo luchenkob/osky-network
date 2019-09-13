@@ -22,6 +22,7 @@ public class AircraftFlight {
     private Integer estArrivalAirportVertDistance;
     private Integer departureAirportCandidatesCount;
     private Integer arrivalAirportCandidatesCount;
+    private String tailNumber;
 
     @Override
     public boolean equals(Object o) {
