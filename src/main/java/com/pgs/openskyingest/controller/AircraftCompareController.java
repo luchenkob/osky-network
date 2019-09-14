@@ -66,9 +66,9 @@ public class AircraftCompareController {
                     aircraftFlightCompare.setIcao24("");
 
                     flights.forEach(f -> {
-                        aircraftFlightCompare.setDeparture(aircraftFlightCompare.getDeparture() + f.getFirstSeen());
-                        aircraftFlightCompare.setArrival(aircraftFlightCompare.getArrival() + f.getLastSeen());
-                        aircraftFlightCompare.setIcao24(aircraftFlightCompare.getIcao24() + f.getIcao24());
+                        aircraftFlightCompare.setDeparture(aircraftFlightCompare.getDeparture() + "," + f.getFirstSeen());
+                        aircraftFlightCompare.setArrival(aircraftFlightCompare.getArrival() + "," + f.getLastSeen());
+                        aircraftFlightCompare.setIcao24(aircraftFlightCompare.getIcao24() + "," + f.getIcao24());
                     });
 
                     retData.get(dateInRetData).add(aircraftFlightCompare);
