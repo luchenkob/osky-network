@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class AircraftFlightServiceImpl implements AircraftFlightService {
@@ -32,8 +32,8 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     }
 
     @Override
-    public Map<String, List<AircraftFlight>> retrieveAircraftFlightGroupByDate(String tailNumber, Long fromTimestamp, Long toTimestamp) {
-        Map<String, List<AircraftFlight>> retData = new HashMap<>();
+    public Map<String, Set<AircraftFlight>> retrieveAircraftFlightGroupByDate(String tailNumber, Long fromTimestamp, Long toTimestamp) {
+        Map<String, Set<AircraftFlight>> retData = new HashMap<>();
         List<AircraftFlight> aircraftFlights = retrieveAircraftFlightInTime(tailNumber, fromTimestamp, toTimestamp);
 
         for (AircraftFlight flight : aircraftFlights) {
@@ -42,7 +42,7 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
             String date = sdf.format(new Date(flight.getFirstSeen() * 1000));
 
             if (retData.get(date) == null) {
-                List<AircraftFlight> ls = new ArrayList<>();
+                Set<AircraftFlight> ls = new HashSet<>();
                 ls.add(flight);
                 retData.put(date, ls);
             } else {
