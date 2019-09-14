@@ -5,6 +5,8 @@ import com.pgs.openskyingest.model.AircraftFlightCompare;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
 import com.pgs.openskyingest.repository.AircraftMetadataRepository;
 import com.pgs.openskyingest.service.AircraftFlightService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +19,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @Service
 public class AircraftFlightServiceImpl implements AircraftFlightService {
+
+    private final static Logger logger = LoggerFactory.getLogger(AircraftFlightServiceImpl.class);
 
     @Autowired
     private AircraftMetadataRepository aircraftMetadataRepository;
@@ -42,6 +47,8 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
         for (AircraftFlight flight : aircraftFlights) {
             flight.setTailNumber(tailNumber);
             DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
             String date = sdf.format(new Date(flight.getFirstSeen() * 1000));
 
             if (retData.get(date) == null) {
@@ -62,10 +69,10 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
 
         // init map
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Calendar fromDate = Calendar.getInstance();
+        Calendar fromDate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         fromDate.setTimeInMillis(from * 1000);
 
-        Calendar toDate = Calendar.getInstance();
+        Calendar toDate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         toDate.setTimeInMillis(to * 1000);
 
         while (fromDate.before(toDate)) {
@@ -79,13 +86,16 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
 
             for (String dateInRetData : retData.keySet()) {
                 Set<AircraftFlight> flights = flightGroupByDate.get(dateInRetData);
+
                 if (flights == null) {
+                    logger.info("AircraftFlightGroupByDate of {} at {} has length {}", tailNumber, dateInRetData, 0);
                     // create blank flight with tailNumber only
                     AircraftFlightCompare aircraftFlightCompare = new AircraftFlightCompare();
                     aircraftFlightCompare.setTailNumber(tailNumber);
 
                     retData.get(dateInRetData).add(aircraftFlightCompare);
                 } else {
+                    logger.info("AircraftFlightGroupByDate of {} at {} has length {}", tailNumber, dateInRetData, flights.size());
                     // merge flights
                     AircraftFlightCompare aircraftFlightCompare = new AircraftFlightCompare();
                     aircraftFlightCompare.setDeparture(flights.stream().map(f -> String.valueOf(f.getFirstSeen())).collect(Collectors.joining(",")));
