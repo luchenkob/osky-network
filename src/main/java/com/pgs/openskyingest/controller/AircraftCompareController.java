@@ -60,10 +60,16 @@ public class AircraftCompareController {
                 } else {
                     // merge flights
                     AircraftFlightCompare aircraftFlightCompare = new AircraftFlightCompare();
-                    aircraftFlightCompare.setDeparture(flights.stream().map(f -> String.valueOf(f.getFirstSeen())).collect(Collectors.joining(",")));
-                    aircraftFlightCompare.setArrival(flights.stream().map(f -> String.valueOf(f.getLastSeen())).collect(Collectors.joining(",")));
-                    aircraftFlightCompare.setIcao24(flights.stream().map(f -> String.valueOf(f.getIcao24())).collect(Collectors.joining(",")));
                     aircraftFlightCompare.setTailNumber(tailNumber);
+                    aircraftFlightCompare.setDeparture("");
+                    aircraftFlightCompare.setArrival("");
+                    aircraftFlightCompare.setIcao24("");
+
+                    flights.forEach(f -> {
+                        aircraftFlightCompare.setDeparture(aircraftFlightCompare.getDeparture() + f.getFirstSeen());
+                        aircraftFlightCompare.setArrival(aircraftFlightCompare.getArrival() + f.getLastSeen());
+                        aircraftFlightCompare.setIcao24(aircraftFlightCompare.getIcao24() + f.getIcao24());
+                    });
 
                     retData.get(dateInRetData).add(aircraftFlightCompare);
                 }
