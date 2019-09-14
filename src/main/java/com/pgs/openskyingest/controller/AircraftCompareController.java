@@ -22,9 +22,10 @@ public class AircraftCompareController {
     @RequestMapping(value = "/aircraft/compare", method = RequestMethod.GET)
     public Map<String, Set<AircraftFlightCompare>> getAircraftsCompare(@RequestParam(value = "aircrafts") String aircrafts,
                                                                        @RequestParam(value = "from") Long from,
-                                                                       @RequestParam(value = "to") Long to) {
+                                                                       @RequestParam(value = "to") Long to,
+                                                                       @RequestParam(value = "clientTz", defaultValue = "UTC") String clientTz) {
         String[] tailNumbers = aircrafts.toUpperCase().split(",");
-        return aircraftFlightService.retrieveAircraftsFlightGroupByDate(tailNumbers, from, to);
+        return aircraftFlightService.retrieveAircraftsFlightGroupByDate(tailNumbers, from, to, clientTz);
     }
 
 }

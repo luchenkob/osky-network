@@ -40,14 +40,14 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     }
 
     @Override
-    public Map<String, Set<AircraftFlight>> retrieveAircraftFlightGroupByDate(String tailNumber, Long fromTimestamp, Long toTimestamp) {
+    public Map<String, Set<AircraftFlight>> retrieveAircraftFlightGroupByDate(String tailNumber, Long fromTimestamp, Long toTimestamp, String clientTz) {
         Map<String, Set<AircraftFlight>> retData = new HashMap<>();
         List<AircraftFlight> aircraftFlights = retrieveAircraftFlightInTime(tailNumber, fromTimestamp, toTimestamp);
 
         for (AircraftFlight flight : aircraftFlights) {
             flight.setTailNumber(tailNumber);
             DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            sdf.setTimeZone(TimeZone.getTimeZone(clientTz));
 
             String date = sdf.format(new Date(flight.getFirstSeen() * 1000));
 
@@ -64,15 +64,17 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     }
 
     @Override
-    public Map<String, Set<AircraftFlightCompare>> retrieveAircraftsFlightGroupByDate(String[] tailNumbers, Long from, Long to) {
+    public Map<String, Set<AircraftFlightCompare>> retrieveAircraftsFlightGroupByDate(String[] tailNumbers, Long from, Long to, String clientTz) {
         Map<String, Set<AircraftFlightCompare>> retData = new HashMap<>();
 
         // init map
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Calendar fromDate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        sdf.setTimeZone(TimeZone.getTimeZone(clientTz));
+
+        Calendar fromDate = Calendar.getInstance(TimeZone.getTimeZone(clientTz));
         fromDate.setTimeInMillis(from * 1000);
 
-        Calendar toDate = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar toDate = Calendar.getInstance(TimeZone.getTimeZone(clientTz));
         toDate.setTimeInMillis(to * 1000);
 
         while (fromDate.before(toDate)) {
@@ -82,7 +84,7 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
 
         // fill data
         for (String tailNumber : tailNumbers) {
-            Map<String, Set<AircraftFlight>> flightGroupByDate = retrieveAircraftFlightGroupByDate(tailNumber, from, to);
+            Map<String, Set<AircraftFlight>> flightGroupByDate = retrieveAircraftFlightGroupByDate(tailNumber, from, to, clientTz);
 
             for (String dateInRetData : retData.keySet()) {
                 Set<AircraftFlight> flights = flightGroupByDate.get(dateInRetData);
