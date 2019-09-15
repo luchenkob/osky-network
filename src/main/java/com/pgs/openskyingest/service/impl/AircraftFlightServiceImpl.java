@@ -12,10 +12,13 @@ import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,8 +43,8 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     }
 
     @Override
-    public Map<String, Set<AircraftFlight>> retrieveAircraftFlightGroupByDate(String tailNumber, Long fromTimestamp, Long toTimestamp, String clientTz) {
-        Map<String, Set<AircraftFlight>> retData = new HashMap<>();
+    public Map<String, List<AircraftFlight>> retrieveAircraftFlightGroupByDate(String tailNumber, Long fromTimestamp, Long toTimestamp, String clientTz) {
+        Map<String, List<AircraftFlight>> retData = new LinkedHashMap<>();
         List<AircraftFlight> aircraftFlights = retrieveAircraftFlightInTime(tailNumber, fromTimestamp, toTimestamp);
 
         for (AircraftFlight flight : aircraftFlights) {
@@ -52,7 +55,7 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
             String date = sdf.format(new Date(flight.getFirstSeen() * 1000));
 
             if (retData.get(date) == null) {
-                Set<AircraftFlight> ls = new HashSet<>();
+                List<AircraftFlight> ls = new ArrayList<>();
                 ls.add(flight);
                 retData.put(date, ls);
             } else {
@@ -64,53 +67,35 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     }
 
     @Override
-    public Map<String, Set<AircraftFlightCompare>> retrieveAircraftsFlightGroupByDate(String[] tailNumbers, Long from, Long to, String clientTz) {
-        Map<String, Set<AircraftFlightCompare>> retData = new HashMap<>();
-
-        // init map
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        sdf.setTimeZone(TimeZone.getTimeZone(clientTz));
-
-        Calendar fromDate = Calendar.getInstance(TimeZone.getTimeZone(clientTz));
-        fromDate.setTimeInMillis(from * 1000);
-
-        Calendar toDate = Calendar.getInstance(TimeZone.getTimeZone(clientTz));
-        toDate.setTimeInMillis(to * 1000);
-
-        while (fromDate.before(toDate)) {
-            retData.put(sdf.format(fromDate.getTime()), new HashSet<>());
-            fromDate.add(Calendar.DAY_OF_MONTH, 1);
-        }
+    public Map<String, List<AircraftFlightCompare>> retrieveAircraftsFlightGroupByDate(String[] tailNumbers, Long from, Long to, String clientTz) {
+        Map<String, List<AircraftFlightCompare>> retData = new LinkedHashMap<>();
 
         // fill data
         for (String tailNumber : tailNumbers) {
-            Map<String, Set<AircraftFlight>> flightGroupByDate = retrieveAircraftFlightGroupByDate(tailNumber, from, to, clientTz);
+            Map<String, List<AircraftFlight>> flightGroupByDate = retrieveAircraftFlightGroupByDate(tailNumber, from, to, clientTz);
 
-            for (String dateInRetData : retData.keySet()) {
-                Set<AircraftFlight> flights = flightGroupByDate.get(dateInRetData);
+            for (String date : flightGroupByDate.keySet()) {
+                List<AircraftFlight> flights = flightGroupByDate.get(date);
+                AircraftFlightCompare aircraftFlightCompare = new AircraftFlightCompare();
+                aircraftFlightCompare.setDeparture(flights.stream().map(f -> String.valueOf(f.getFirstSeen())).collect(Collectors.joining(",")));
+                aircraftFlightCompare.setDepartureAirport(flights.stream().map(f -> f.getEstDepartureAirport()).collect(Collectors.joining(",")));
+                aircraftFlightCompare.setArrival(flights.stream().map(f -> String.valueOf(f.getLastSeen())).collect(Collectors.joining(",")));
+                aircraftFlightCompare.setArrivalAirport(flights.stream().map(f -> f.getEstArrivalAirport()).collect(Collectors.joining(",")));
+                aircraftFlightCompare.setIcao24(flights.stream().map(f -> String.valueOf(f.getIcao24())).collect(Collectors.joining(",")));
+                aircraftFlightCompare.setTailNumber(tailNumber);
 
-                if (flights == null) {
-                    logger.info("AircraftFlightGroupByDate of {} at {} has length {}", tailNumber, dateInRetData, 0);
-                    // create blank flight with tailNumber only
-                    AircraftFlightCompare aircraftFlightCompare = new AircraftFlightCompare();
-                    aircraftFlightCompare.setTailNumber(tailNumber);
-
-                    retData.get(dateInRetData).add(aircraftFlightCompare);
+                if (retData.get(date) == null) {
+                    List<AircraftFlightCompare> afcls = new ArrayList<>();
+                    afcls.add(aircraftFlightCompare);
+                    retData.put(date, afcls);
                 } else {
-                    logger.info("AircraftFlightGroupByDate of {} at {} has length {}", tailNumber, dateInRetData, flights.size());
-                    // merge flights
-                    AircraftFlightCompare aircraftFlightCompare = new AircraftFlightCompare();
-                    aircraftFlightCompare.setDeparture(flights.stream().map(f -> String.valueOf(f.getFirstSeen())).collect(Collectors.joining(",")));
-                    aircraftFlightCompare.setArrival(flights.stream().map(f -> String.valueOf(f.getLastSeen())).collect(Collectors.joining(",")));
-                    aircraftFlightCompare.setIcao24(flights.stream().map(f -> String.valueOf(f.getIcao24())).collect(Collectors.joining(",")));
-                    aircraftFlightCompare.setTailNumber(tailNumber);
-
-                    retData.get(dateInRetData).add(aircraftFlightCompare);
+                    retData.get(date).add(aircraftFlightCompare);
                 }
             }
-
         }
 
-        return retData;
+        return retData.entrySet().stream()
+                .sorted(Comparator.comparing(Map.Entry::getKey))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
     }
 }

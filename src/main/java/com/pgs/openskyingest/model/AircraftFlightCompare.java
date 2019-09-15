@@ -9,7 +9,9 @@ import lombok.ToString;
 @ToString
 public class AircraftFlightCompare {
     private String departure;
+    private String departureAirport;
     private String arrival;
+    private String arrivalAirport;
     private String tailNumber;
     private String icao24;
 }

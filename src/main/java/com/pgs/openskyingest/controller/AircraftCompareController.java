@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @CrossOrigin(origins = { "http://localhost:3000", "https://opensky-ingest-fe.herokuapp.com" })
 @RestController
@@ -20,10 +20,10 @@ public class AircraftCompareController {
     private AircraftFlightService aircraftFlightService;
 
     @RequestMapping(value = "/aircraft/compare", method = RequestMethod.GET)
-    public Map<String, Set<AircraftFlightCompare>> getAircraftsCompare(@RequestParam(value = "aircrafts") String aircrafts,
-                                                                       @RequestParam(value = "from") Long from,
-                                                                       @RequestParam(value = "to") Long to,
-                                                                       @RequestParam(value = "clientTz", defaultValue = "UTC") String clientTz) {
+    public Map<String, List<AircraftFlightCompare>> getAircraftsCompare(@RequestParam(value = "aircrafts") String aircrafts,
+                                                                        @RequestParam(value = "from") Long from,
+                                                                        @RequestParam(value = "to") Long to,
+                                                                        @RequestParam(value = "clientTz", defaultValue = "UTC") String clientTz) {
         String[] tailNumbers = aircrafts.toUpperCase().split(",");
         return aircraftFlightService.retrieveAircraftsFlightGroupByDate(tailNumbers, from, to, clientTz);
     }
