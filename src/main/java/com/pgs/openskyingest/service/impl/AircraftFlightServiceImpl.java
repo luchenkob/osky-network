@@ -72,13 +72,12 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
 
             for (String date : flightGroupByDate.keySet()) {
                 List<AircraftFlight> flights = flightGroupByDate.get(date);
-                AircraftFlightCompare aircraftFlightCompare = new AircraftFlightCompare();
+                AircraftFlightCompare aircraftFlightCompare = new AircraftFlightCompare(tailNumber);
                 aircraftFlightCompare.setDeparture(flights.stream().map(f -> String.valueOf(f.getFirstSeen())).collect(Collectors.joining(",")));
                 aircraftFlightCompare.setDepartureAirport(flights.stream().map(f -> f.getEstDepartureAirport()).collect(Collectors.joining(",")));
                 aircraftFlightCompare.setArrival(flights.stream().map(f -> String.valueOf(f.getLastSeen())).collect(Collectors.joining(",")));
                 aircraftFlightCompare.setArrivalAirport(flights.stream().map(f -> f.getEstArrivalAirport()).collect(Collectors.joining(",")));
                 aircraftFlightCompare.setIcao24(flights.stream().map(f -> String.valueOf(f.getIcao24())).collect(Collectors.joining(",")));
-                aircraftFlightCompare.setTailNumber(tailNumber);
 
                 if (retData.get(date) == null) {
                     List<AircraftFlightCompare> afcls = new ArrayList<>();
@@ -90,8 +89,24 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
             }
         }
 
+        // fill missing data
+        for (Map.Entry<String, List<AircraftFlightCompare>> entry : retData.entrySet()) {
+            List<AircraftFlightCompare> newList = new ArrayList<>();
+            List<AircraftFlightCompare> currentList = entry.getValue();
+
+            for (String tailNumber : tailNumbers) {
+                newList.add(currentList.stream()
+                        .filter(afc -> afc.getTailNumber().equalsIgnoreCase(tailNumber))
+                        .findFirst()
+                        .orElse(new AircraftFlightCompare(tailNumber)));
+            }
+            //update entry
+            entry.setValue(newList);
+        }
+
+        // return sorted key
         return retData.entrySet().stream()
                 .sorted(Comparator.comparing(Map.Entry::getKey))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 }

@@ -14,4 +14,8 @@ public class AircraftFlightCompare {
     private String arrivalAirport;
     private String tailNumber;
     private String icao24;
+
+    public AircraftFlightCompare(String tailNumber) {
+        this.tailNumber = tailNumber;
+    }
 }
