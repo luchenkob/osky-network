@@ -80,7 +80,7 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
     }
 
     @Override
-    public List<String> retrieveAllAircraftTailNumber() {
+    public String[] retrieveAllAircraftTailNumber() {
         return aircraftMetadataRepository.findAllAircraftTailNumber();
     }
 
