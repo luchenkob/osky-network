@@ -39,4 +39,9 @@ public class AircraftMetadataController {
         return null;
     }
 
+    @RequestMapping(value = "/aircraft/metadata/tailNumbers", method = RequestMethod.GET)
+    public List<String> getAllAircraftTailNumber() {
+        return configManagmentService.retrieveAllAircraftTailNumber();
+    }
+
 }

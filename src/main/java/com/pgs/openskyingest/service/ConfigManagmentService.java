@@ -22,4 +22,6 @@ public interface ConfigManagmentService {
     AircraftMetadata retrieveAircraftMetadataByRegistration(String registration);
 
     List<AircraftMetadata> retrieveAllAircraft();
+
+    List<String> retrieveAllAircraftTailNumber();
 }

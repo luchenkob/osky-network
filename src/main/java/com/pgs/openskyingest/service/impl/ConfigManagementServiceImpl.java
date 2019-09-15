@@ -79,4 +79,9 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
         return aircraftMetadataRepository.findAll();
     }
 
+    @Override
+    public List<String> retrieveAllAircraftTailNumber() {
+        return aircraftMetadataRepository.findAllAircraftTailNumber();
+    }
+
 }
