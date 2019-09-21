@@ -2,8 +2,10 @@ package com.pgs.openskyingest.service.impl;
 
 import com.pgs.openskyingest.model.AircraftFlight;
 import com.pgs.openskyingest.model.AircraftFlightCompare;
+import com.pgs.openskyingest.model.AirportMetadata;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
 import com.pgs.openskyingest.repository.AircraftMetadataRepository;
+import com.pgs.openskyingest.repository.AirportMetadataRepository;
 import com.pgs.openskyingest.service.AircraftFlightService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,9 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
 
     @Autowired
     private AircraftFlightRepository aircraftFlightRepository;
+
+    @Autowired
+    private AirportMetadataRepository airportMetadataRepository;
 
     @Override
     public List<AircraftFlight> retrieveAircraftFlightInTime(String tailNumber, Long fromTimestamp, Long toTimestamp) {
@@ -74,9 +79,21 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
                 List<AircraftFlight> flights = flightGroupByDate.get(date);
                 AircraftFlightCompare aircraftFlightCompare = new AircraftFlightCompare(tailNumber);
                 aircraftFlightCompare.setDeparture(flights.stream().map(f -> String.valueOf(f.getFirstSeen())).collect(Collectors.joining(",")));
-                aircraftFlightCompare.setDepartureAirport(flights.stream().map(f -> f.getEstDepartureAirport()).collect(Collectors.joining(",")));
+
+                aircraftFlightCompare.setDepartureAirport(flights.stream().map(f -> {
+                    String gpsCode = f.getEstDepartureAirport();
+                    List<AirportMetadata> airportMetadatas = airportMetadataRepository.findAirportMetadataByGpsCode(gpsCode);
+                    return airportMetadatas.isEmpty() ? gpsCode : airportMetadatas.get(0).getName();
+                }).collect(Collectors.joining("###")));
+
                 aircraftFlightCompare.setArrival(flights.stream().map(f -> String.valueOf(f.getLastSeen())).collect(Collectors.joining(",")));
-                aircraftFlightCompare.setArrivalAirport(flights.stream().map(f -> f.getEstArrivalAirport()).collect(Collectors.joining(",")));
+
+                aircraftFlightCompare.setArrivalAirport(flights.stream().map(f -> {
+                    String gpsCode = f.getEstArrivalAirport();
+                    List<AirportMetadata> airportMetadatas = airportMetadataRepository.findAirportMetadataByGpsCode(gpsCode);
+                    return airportMetadatas.isEmpty() ? gpsCode : airportMetadatas.get(0).getName();
+                }).collect(Collectors.joining("###")));
+
                 aircraftFlightCompare.setIcao24(flights.stream().map(f -> String.valueOf(f.getIcao24())).collect(Collectors.joining(",")));
 
                 if (retData.get(date) == null) {
