@@ -62,6 +62,9 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
             } else {
                 retData.get(date).add(flight);
             }
+
+            flight.setEstDepartureAirport(getAiportName(flight.getEstDepartureAirport()));
+            flight.setEstArrivalAirport(getAiportName(flight.getEstArrivalAirport()));
         }
 
         return retData;
@@ -125,5 +128,14 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
         return retData.entrySet().stream()
                 .sorted(Comparator.comparing(Map.Entry::getKey))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
+
+    private String getAiportName(String gpsCode) {
+        List<AirportMetadata> airports = airportMetadataRepository.findAirportMetadataByGpsCode(gpsCode);
+        if (!airports.isEmpty()) {
+            return airports.get(0).getName();
+        } else {
+            return gpsCode;
+        }
     }
 }
