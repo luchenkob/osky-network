@@ -37,15 +37,16 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
         for (String tailNumber : tailNumbers) {
             Runnable runnable = () -> {
                 if (aircraftMetadataRepository.findAircraftMetadataByRegistration(tailNumber) == null) {
-                    String icao24 = openSkyIntegrationService.getIcao24FromTailNumber(tailNumber);
-                    if (!Constant.ICAO24_NOT_FOUND.equalsIgnoreCase(icao24)) {
-                        AircraftMetadata aircraftMetadata = openSkyIntegrationService.getMetadataOfAircraft(icao24);
+                    openSkyIntegrationService.getIcao24FromTailNumber(tailNumber).forEach(icao24 -> {
+                        if (!Constant.ICAO24_NOT_FOUND.equalsIgnoreCase(icao24)) {
+                            AircraftMetadata aircraftMetadata = openSkyIntegrationService.getMetadataOfAircraft(icao24);
 
-                        if (aircraftMetadata != null) {
-                            aircraftMetadata.setIsTracking(Boolean.TRUE);
-                            listAircrafts.add(aircraftMetadata);
+                            if (aircraftMetadata != null) {
+                                aircraftMetadata.setIsTracking(Boolean.TRUE);
+                                listAircrafts.add(aircraftMetadata);
+                            }
                         }
-                    }
+                    });
                 } else {
                     logger.info("{} had existed in database", tailNumber);
                 }

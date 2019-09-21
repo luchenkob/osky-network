@@ -28,7 +28,8 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public String getIcao24FromTailNumber(String tailNumber) {
+    public List<String> getIcao24FromTailNumber(String tailNumber) {
+        List<String> icao24s = new ArrayList<>();
         CloseableHttpClient client = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet("https://opensky-network.org/api/metadata/aircraft/list?n=50&p=1&q=" + tailNumber + "&sc=&sd=");
 
@@ -37,17 +38,19 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
             logger.info("getIcao24FromTailNumber json response {}", json);
 
             JsonNode root = objectMapper.readTree(json);
-            String icao24 = root.path("content").path(0).path("icao24").asText(Constant.ICAO24_NOT_FOUND);
-
+            for (JsonNode content : root.path("content")) {
+                String icao24 = content.path("icao24").asText(Constant.ICAO24_NOT_FOUND);
+                icao24s.add(icao24);
+            }
             response.close();
             client.close();
 
-            return icao24;
+            return icao24s;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return Constant.ICAO24_NOT_FOUND;
+        return icao24s;
     }
 
     @Override

@@ -22,8 +22,8 @@
 //
 //    @Test
 //    public void getIcao() {
-//        String icao24 = openSkyIntegrationService.getIcao24FromTailNumber("N15GX");
-//        Assert.assertEquals("a0c882", icao24);
+//        List<String> icao24s = openSkyIntegrationService.getIcao24FromTailNumber("N730LM");
+//        Assert.assertEquals(2, icao24s.size());
 //    }
 //
 //    @Test
