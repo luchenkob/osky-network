@@ -9,6 +9,8 @@ public interface AirportMetadataService {
 
     List<AirportMetadata> retrieveAirportMetadata(String gpsCode);
 
+    List<AirportMetadata> retrieveAirportMetadataByUserInput(String query);
+
     List<AircraftFlight> retrieveAllFlightsDepartureAt(String gpsCode);
 
     List<AircraftFlight> retrieveAllFlightsArriveTo(String gpsCode);

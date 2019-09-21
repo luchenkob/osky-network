@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = {"http://localhost:3000", "https://opensky-ingest-fe.herokuapp.com"})
@@ -21,8 +22,15 @@ public class AirportMetadataController {
     private AirportMetadataService airportMetadataService;
 
     @RequestMapping(value = "/airport/metadata", method = RequestMethod.GET)
-    public List<AirportMetadata> getAirportMetadata(@RequestParam(name = "gpsCode") String gpsCode) {
-        return airportMetadataService.retrieveAirportMetadata(gpsCode);
+    public List<AirportMetadata> getAirportMetadata(@RequestParam(name = "gpsCode", defaultValue = "") String gpsCode,
+                                                    @RequestParam(name = "q", defaultValue = "") String query) {
+        if (!gpsCode.isEmpty()) {
+            return airportMetadataService.retrieveAirportMetadata(gpsCode);
+        } else if (!query.isEmpty()) {
+            return airportMetadataService.retrieveAirportMetadataByUserInput(query);
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @RequestMapping(value = "/airport/{gpsCode}/departureflights", method = RequestMethod.GET)

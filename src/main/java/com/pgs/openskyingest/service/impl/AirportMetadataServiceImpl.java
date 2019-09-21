@@ -25,6 +25,11 @@ public class AirportMetadataServiceImpl implements AirportMetadataService {
     }
 
     @Override
+    public List<AirportMetadata> retrieveAirportMetadataByUserInput(String query) {
+        return airportMetadataRepository.findAirportMetadataByNameContains(query);
+    }
+
+    @Override
     public List<AircraftFlight> retrieveAllFlightsDepartureAt(String gpsCode) {
         return aircraftFlightRepository.findAircraftFlightByEstDepartureAirport(gpsCode);
     }
