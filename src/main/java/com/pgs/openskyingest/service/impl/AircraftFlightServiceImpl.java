@@ -40,7 +40,14 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     @Override
     public List<AircraftFlight> retrieveAircraftFlightInTime(String tailNumber, Long fromTimestamp, Long toTimestamp) {
         String icao24 = aircraftMetadataRepository.findAircraftMetadataByRegistration(tailNumber).getIcao24();
-        return aircraftFlightRepository.findAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, fromTimestamp, toTimestamp);
+        List<AircraftFlight> flights = aircraftFlightRepository.findAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, fromTimestamp, toTimestamp);
+
+        for (AircraftFlight flight : flights) {
+            flight.setEstDepartureAirport(getAiportName(flight.getEstDepartureAirport()));
+            flight.setEstArrivalAirport(getAiportName(flight.getEstArrivalAirport()));
+        }
+
+        return flights;
     }
 
     @Override
@@ -62,9 +69,6 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
             } else {
                 retData.get(date).add(flight);
             }
-
-            flight.setEstDepartureAirport(getAiportName(flight.getEstDepartureAirport()));
-            flight.setEstArrivalAirport(getAiportName(flight.getEstArrivalAirport()));
         }
 
         return retData;
