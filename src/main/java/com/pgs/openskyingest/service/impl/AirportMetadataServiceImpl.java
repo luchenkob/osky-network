@@ -26,7 +26,7 @@ public class AirportMetadataServiceImpl implements AirportMetadataService {
 
     @Override
     public List<AirportMetadata> retrieveAirportMetadataByUserInput(String query) {
-        return airportMetadataRepository.findAirportMetadataByNameContains(query);
+        return airportMetadataRepository.findAirportMetadataByNameContainsIgnoreCase(query);
     }
 
     @Override

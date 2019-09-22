@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface AirportMetadataRepository extends MongoRepository<AirportMetadata, String> {
     List<AirportMetadata> findAirportMetadataByGpsCode(String gpsCode);
-    List<AirportMetadata> findAirportMetadataByNameContains(String query);
+
+    List<AirportMetadata> findAirportMetadataByNameContainsIgnoreCase(String query);
 }
