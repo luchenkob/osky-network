@@ -25,7 +25,7 @@ public class AirportMetadataController {
     public List<AirportMetadata> getAirportMetadata(@RequestParam(name = "gpsCode", defaultValue = "") String gpsCode,
                                                     @RequestParam(name = "q", defaultValue = "") String query) {
         if (!gpsCode.isEmpty()) {
-            return airportMetadataService.retrieveAirportMetadata(gpsCode);
+            return airportMetadataService.retrieveAirportMetadata(gpsCode.toUpperCase());
         } else if (!query.isEmpty()) {
             return airportMetadataService.retrieveAirportMetadataByUserInput(query);
         } else {
@@ -35,11 +35,11 @@ public class AirportMetadataController {
 
     @RequestMapping(value = "/airport/{gpsCode}/departureflights", method = RequestMethod.GET)
     public List<AircraftFlight> getAllFlightsDeparture(@PathVariable String gpsCode) {
-        return airportMetadataService.retrieveAllFlightsDepartureAt(gpsCode);
+        return airportMetadataService.retrieveAllFlightsDepartureAt(gpsCode.toUpperCase());
     }
 
     @RequestMapping(value = "/airport/{gpsCode}/arriveflights", method = RequestMethod.GET)
     public List<AircraftFlight> getAllFlightsArrive(@PathVariable String gpsCode) {
-        return airportMetadataService.retrieveAllFlightsArriveTo(gpsCode);
+        return airportMetadataService.retrieveAllFlightsArriveTo(gpsCode.toUpperCase());
     }
 }

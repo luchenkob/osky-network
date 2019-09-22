@@ -23,11 +23,11 @@ public class AircraftPositionController {
     public List<AircraftPosition> getAllPositionOfAircraftFrom(@PathVariable String tailNumber,
                                                                @RequestParam(value = "from") Long fromTimestamp,
                                                                @RequestParam(value = "to") Long toTimestamp) {
-        return aircraftPositionService.retrieveAircraftPositionInTime(tailNumber, fromTimestamp, toTimestamp);
+        return aircraftPositionService.retrieveAircraftPositionInTime(tailNumber.toUpperCase(), fromTimestamp, toTimestamp);
     }
 
     @RequestMapping(value = "/aircraft/{tailNumber}/position/current", method = RequestMethod.GET)
     public List<AircraftPosition> getAllPositionOfAircraftFrom(@PathVariable String tailNumber) {
-        return aircraftPositionService.retrieveCurrentAircraftPosition(tailNumber);
+        return aircraftPositionService.retrieveCurrentAircraftPosition(tailNumber.toUpperCase());
     }
 }

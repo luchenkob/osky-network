@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @CrossOrigin(origins = {"http://localhost:3000", "https://opensky-ingest-fe.herokuapp.com"})
@@ -25,18 +24,20 @@ public class AircraftMetadataController {
 
     @RequestMapping(value = "/aircraft/metadata/all", method = RequestMethod.GET)
     public List<AircraftMetadata> getAllAircraft(@RequestParam(value = "tailNumber", defaultValue = "") String tailNumber) {
+        tailNumber = tailNumber.toUpperCase();
         if (StringUtils.isEmpty(tailNumber)) {
             return configManagmentService.retrieveAllAircraft();
         } else {
-            return Arrays.asList(configManagmentService.retrieveAircraftMetadataByRegistration(tailNumber));
+            return configManagmentService.retrieveAircraftMetadataByRegistration(tailNumber);
         }
     }
 
     @RequestMapping(value = "/aircraft/metadata", method = RequestMethod.POST)
     public AircraftMetadata addAircraftForWatching(@RequestBody String tailNumber) {
+        tailNumber = tailNumber.toUpperCase();
         int result = configManagmentService.insertWatchingAircaftConfig(tailNumber);
         if (result > 0) {
-            return configManagmentService.retrieveAircraftMetadataByRegistration(tailNumber);
+            return configManagmentService.retrieveAircraftMetadataByRegistration(tailNumber).get(0);
         }
         return null;
     }

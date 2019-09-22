@@ -23,7 +23,7 @@ public class AircraftFlightController {
     public List<AircraftFlight> getAllPositionOfAircraftFrom(@PathVariable String tailNumber,
                                                              @RequestParam(value = "from") Long fromTimestamp,
                                                              @RequestParam(value = "to") Long toTimestamp) {
-        return aircraftFlightService.retrieveAircraftFlightInTime(tailNumber, fromTimestamp, toTimestamp);
+        return aircraftFlightService.retrieveAircraftFlightInTime(tailNumber.toUpperCase(), fromTimestamp, toTimestamp);
     }
 
 }
