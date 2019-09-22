@@ -24,11 +24,11 @@ public class AircraftMetadataController {
     private ConfigManagmentService configManagmentService;
 
     @RequestMapping(value = "/aircraft/metadata/all", method = RequestMethod.GET)
-    public List<AircraftMetadata> getAllAircraft(@RequestParam(value = "icao24", defaultValue = "") String icao24) {
-        if (StringUtils.isEmpty(icao24)) {
+    public List<AircraftMetadata> getAllAircraft(@RequestParam(value = "tailNumber", defaultValue = "") String tailNumber) {
+        if (StringUtils.isEmpty(tailNumber)) {
             return configManagmentService.retrieveAllAircraft();
         } else {
-            return Arrays.asList(configManagmentService.retrieveAircraftMetadataByIcao24(icao24));
+            return Arrays.asList(configManagmentService.retrieveAircraftMetadataByRegistration(tailNumber));
         }
     }
 
