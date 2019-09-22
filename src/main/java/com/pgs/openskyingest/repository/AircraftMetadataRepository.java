@@ -8,8 +8,10 @@ import java.util.List;
 
 public interface AircraftMetadataRepository extends MongoRepository<AircraftMetadata, String> {
     List<AircraftMetadata> findAircraftMetadataByIsTracking(boolean isTracking);
+
     AircraftMetadata findAircraftMetadataByIcao24(String icao24);
-    AircraftMetadata findAircraftMetadataByRegistration(String registration);
+
+    List<AircraftMetadata> findAircraftMetadataByRegistrationContains(String registration);
 
     @Query(value="{}",fields="{ '_id': 0, 'registration' : 1}")
     String[] findAllAircraftTailNumber();

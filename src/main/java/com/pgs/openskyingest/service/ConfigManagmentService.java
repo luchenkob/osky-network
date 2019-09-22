@@ -19,7 +19,7 @@ public interface ConfigManagmentService {
 
     AircraftMetadata retrieveAircraftMetadataByIcao24(String icao24);
 
-    AircraftMetadata retrieveAircraftMetadataByRegistration(String registration);
+    List<AircraftMetadata> retrieveAircraftMetadataByRegistration(String registration);
 
     List<AircraftMetadata> retrieveAllAircraft();
 
