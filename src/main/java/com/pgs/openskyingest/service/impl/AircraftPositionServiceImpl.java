@@ -1,5 +1,6 @@
 package com.pgs.openskyingest.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgs.openskyingest.model.AircraftFlight;
 import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftPosition;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,7 +48,17 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
 
     @Override
     public List<AircraftPosition> retrieveCurrentPositionOfAllAircraft() {
-        List<String> icao24s = aircraftMetadataRepository.findAllAircraftIcao24();
+        List<String> jsonRets = aircraftMetadataRepository.findAllAircraftIcao24();
+        List<String> icao24s = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        for (String json : jsonRets) {
+            try {
+                String icao24 = objectMapper.readTree(json).get("icao24").textValue();
+                icao24s.add(icao24);
+            } catch (Exception e) {
+                // do nothing
+            }
+        }
         return openSkyIntegrationService.getAllStateVectorOfMultiAircraft(icao24s);
     }
 
