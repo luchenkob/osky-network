@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = { "http://localhost:3000", "https://opensky-ingest-fe.herokuapp.com"})
@@ -29,5 +30,10 @@ public class AircraftPositionController {
     @RequestMapping(value = "/aircraft/{tailNumber}/position/current", method = RequestMethod.GET)
     public List<AircraftPosition> getAllPositionOfAircraftFrom(@PathVariable String tailNumber) {
         return aircraftPositionService.retrieveCurrentAircraftPosition(tailNumber.toUpperCase());
+    }
+
+    @RequestMapping(value = "/aircraft/position/current", method = RequestMethod.GET)
+    public List<AircraftPosition> getCurrentPositionOfAllAircraft() {
+        return aircraftPositionService.retrieveCurrentPositionOfAllAircraft();
     }
 }

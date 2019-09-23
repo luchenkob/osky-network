@@ -13,6 +13,8 @@ public interface OpenSkyIntegrationService {
 
     List<AircraftPosition> getAllStateVectorOfAircraft(String icao24, Long timestamp);
 
+    List<AircraftPosition> getAllStateVectorOfMultiAircraft(List<String> icao24s);
+
     /**
      * GET /flights/aircraft
      * The given time interval must not be larger than 30 days!

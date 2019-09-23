@@ -45,6 +45,12 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
     }
 
     @Override
+    public List<AircraftPosition> retrieveCurrentPositionOfAllAircraft() {
+        List<String> icao24s = aircraftMetadataRepository.findAllAircraftIcao24();
+        return openSkyIntegrationService.getAllStateVectorOfMultiAircraft(icao24s);
+    }
+
+    @Override
     public void updateAircraftPositionFromFlight(String icao24) {
         // identify latest flights
         Long end = Instant.now().getEpochSecond();

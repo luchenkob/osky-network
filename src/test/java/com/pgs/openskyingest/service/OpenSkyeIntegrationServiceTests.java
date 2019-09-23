@@ -11,6 +11,8 @@
 //import org.springframework.test.context.junit4.SpringRunner;
 //
 //import java.time.Instant;
+//import java.util.ArrayList;
+//import java.util.Arrays;
 //import java.util.List;
 //
 //@RunWith(SpringRunner.class)
@@ -52,5 +54,13 @@
 //        List<AircraftPosition> positions = openSkyIntegrationService.getTrackedPositionOfAircraft("a11780", 1565656615l);
 //        Assert.assertEquals(130, positions.size());
 //        System.out.println(positions);
+//    }
+//
+//    @Test
+//    public void getAllStrateOfAllAircraft() {
+//        List<String> icao24s = Arrays.asList("ab1640", "ab1644");
+//        List<AircraftPosition> aircraftPositions = openSkyIntegrationService.getAllStateVectorOfMultiAircraft(icao24s);
+//
+//        System.out.println(aircraftPositions);
 //    }
 //}

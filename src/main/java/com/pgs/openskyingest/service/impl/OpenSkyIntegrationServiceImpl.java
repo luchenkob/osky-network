@@ -79,38 +79,25 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
         CloseableHttpClient client = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet("https://tinnt:dnMdFfeKDcf9vQ!@opensky-network.org/api/states/all?icao24=" + icao24 + "&time=" + timestamp);
 
-        try (CloseableHttpResponse response = client.execute(httpGet)) {
-            String json = EntityUtils.toString(response.getEntity());
-            logger.info("Returned state vectors of aircraft {} at {}: {}", icao24, timestamp, json);
-            JsonNode states = objectMapper.readTree(json).path("states");
-            List<AircraftPosition> aircraftPositions = new ArrayList<>();
+        return executeGetAndExtractAircraftPosition(client, httpGet);
+    }
 
-            if (states.isArray()) {
-                for (final JsonNode state : states) {
-                    AircraftPosition aircraftPosition = new AircraftPosition();
-                    aircraftPosition.setIcao24(state.path(0).asText());
-                    aircraftPosition.setTimePosition(state.path(3).asLong());
-                    aircraftPosition.setLongitude(state.path(5).asDouble());
-                    aircraftPosition.setLatitude(state.path(6).asDouble());
-                    aircraftPosition.setBaroAltitude(state.path(7).asDouble());
-                    aircraftPosition.setOnGround(state.path(8).asBoolean());
-                    aircraftPosition.setVerticalRate(state.path(9).asDouble());
-                    aircraftPosition.setTrueTrack(state.path(10).asDouble());
+    @Override
+    public List<AircraftPosition> getAllStateVectorOfMultiAircraft(List<String> icao24s) {
+        CloseableHttpClient client = HttpClients.createDefault();
+        StringBuilder url = new StringBuilder("https://tinnt:dnMdFfeKDcf9vQ!@opensky-network.org/api/states/all?");
 
-                    logger.info("Aircraft position obtain from state array: {}", aircraftPosition.toString());
-                    aircraftPositions.add(aircraftPosition);
-                }
-            }
+        icao24s.forEach(icao24 -> {
+            url.append("icao24=");
+            url.append(icao24);
+            url.append("&");
+        });
 
-            response.close();
-            client.close();
+        String urlStr = url.toString();
 
-            return aircraftPositions;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        HttpGet httpGet = new HttpGet(urlStr.substring(0, urlStr.length() - 1));
 
-        return null;
+        return executeGetAndExtractAircraftPosition(client, httpGet);
     }
 
     @Override
@@ -162,6 +149,41 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    private List<AircraftPosition> executeGetAndExtractAircraftPosition(CloseableHttpClient client, HttpGet httpGet) {
+        try (CloseableHttpResponse response = client.execute(httpGet)) {
+            String json = EntityUtils.toString(response.getEntity());
+            logger.info("Returned state vectors of aircraft at {}: {}", httpGet.toString(), json);
+            JsonNode states = objectMapper.readTree(json).path("states");
+            List<AircraftPosition> aircraftPositions = new ArrayList<>();
+
+            if (states.isArray()) {
+                for (final JsonNode state : states) {
+                    AircraftPosition aircraftPosition = new AircraftPosition();
+                    aircraftPosition.setIcao24(state.path(0).asText());
+                    aircraftPosition.setTimePosition(state.path(3).asLong());
+                    aircraftPosition.setLongitude(state.path(5).asDouble());
+                    aircraftPosition.setLatitude(state.path(6).asDouble());
+                    aircraftPosition.setBaroAltitude(state.path(7).asDouble());
+                    aircraftPosition.setOnGround(state.path(8).asBoolean());
+                    aircraftPosition.setVerticalRate(state.path(9).asDouble());
+                    aircraftPosition.setTrueTrack(state.path(10).asDouble());
+
+                    logger.info("Aircraft position obtain from state array: {}", aircraftPosition.toString());
+                    aircraftPositions.add(aircraftPosition);
+                }
+            }
+
+            response.close();
+            client.close();
+
+            return aircraftPositions;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
 }

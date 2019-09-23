@@ -10,6 +10,8 @@ public interface AircraftPositionService {
 
     List<AircraftPosition> retrieveCurrentAircraftPosition(String tailNumber);
 
+    List<AircraftPosition> retrieveCurrentPositionOfAllAircraft();
+
     /**
      * This method will do:
      *  1. Identify flights which are latest flights
