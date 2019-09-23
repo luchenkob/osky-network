@@ -36,7 +36,7 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
         List<AircraftMetadata> listAircrafts = new ArrayList<>();
         for (String tailNumber : tailNumbers) {
             Runnable runnable = () -> {
-                if (aircraftMetadataRepository.findAircraftMetadataByRegistrationContains(tailNumber) == null) {
+                if (aircraftMetadataRepository.findAircraftMetadataByRegistration(tailNumber) == null) {
                     openSkyIntegrationService.getIcao24FromTailNumber(tailNumber).forEach(icao24 -> {
                         if (!Constant.ICAO24_NOT_FOUND.equalsIgnoreCase(icao24)) {
                             AircraftMetadata aircraftMetadata = openSkyIntegrationService.getMetadataOfAircraft(icao24);
