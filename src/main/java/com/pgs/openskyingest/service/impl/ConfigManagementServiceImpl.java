@@ -94,10 +94,10 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
     }
 
     @Override
-    public Boolean deleteAircraft(String icao24) {
+    public Long deleteAircraft(String icao24) {
         return aircraftMetadataRepository.deleteAircraftMetadataByIcao24(icao24)
-                && aircraftFlightRepository.deleteAircraftFlightByIcao24(icao24)
-                && aircraftPositionRepository.deleteAircraftPositionByIcao24(icao24);
+                + aircraftFlightRepository.deleteAircraftFlightByIcao24(icao24)
+                + aircraftPositionRepository.deleteAircraftPositionByIcao24(icao24);
 
     }
 

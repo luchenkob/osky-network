@@ -14,5 +14,5 @@ public interface AircraftFlightRepository extends MongoRepository<AircraftFlight
 
     List<AircraftFlight> findAircraftFlightByEstArrivalAirport(String gpsCode);
 
-    Boolean deleteAircraftFlightByIcao24(String icao24);
+    Long deleteAircraftFlightByIcao24(String icao24);
 }

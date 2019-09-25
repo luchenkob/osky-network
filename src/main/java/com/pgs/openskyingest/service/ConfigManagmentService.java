@@ -25,5 +25,5 @@ public interface ConfigManagmentService {
 
     String[] retrieveAllAircraftTailNumber();
 
-    Boolean deleteAircraft(String icao24);
+    Long deleteAircraft(String icao24);
 }

@@ -8,5 +8,5 @@ import java.util.List;
 public interface AircraftPositionRepository extends MongoRepository<AircraftPosition, String> {
     List<AircraftPosition> findAircraftPositionsByIcao24EqualsAndTimePositionBetween(String icao24, Long fromTimestamp, Long toTimestamp);
 
-    Boolean deleteAircraftPositionByIcao24(String icao24);
+    Long deleteAircraftPositionByIcao24(String icao24);
 }
