@@ -20,4 +20,6 @@ public interface AircraftMetadataRepository extends MongoRepository<AircraftMeta
 
     @Query(value="{}",fields="{ '_id': 0, 'icao24' : 1}")
     List<String> findAllAircraftIcao24();
+
+    Boolean deleteAircraftMetadataByIcao24(String icao24);
 }

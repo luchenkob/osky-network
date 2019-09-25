@@ -2,7 +2,9 @@ package com.pgs.openskyingest.service.impl;
 
 import com.pgs.openskyingest.constant.Constant;
 import com.pgs.openskyingest.model.AircraftMetadata;
+import com.pgs.openskyingest.repository.AircraftFlightRepository;
 import com.pgs.openskyingest.repository.AircraftMetadataRepository;
+import com.pgs.openskyingest.repository.AircraftPositionRepository;
 import com.pgs.openskyingest.service.ConfigManagmentService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.slf4j.Logger;
@@ -25,6 +27,12 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
 
     @Autowired
     private AircraftMetadataRepository aircraftMetadataRepository;
+
+    @Autowired
+    private AircraftPositionRepository aircraftPositionRepository;
+
+    @Autowired
+    private AircraftFlightRepository aircraftFlightRepository;
 
     @Override
     public int insertWatchingAircaftConfig(String... tailNumbers) {
@@ -83,6 +91,14 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
     @Override
     public String[] retrieveAllAircraftTailNumber() {
         return aircraftMetadataRepository.findAllAircraftTailNumber();
+    }
+
+    @Override
+    public Boolean deleteAircraft(String icao24) {
+        return aircraftMetadataRepository.deleteAircraftMetadataByIcao24(icao24)
+                && aircraftFlightRepository.deleteAircraftFlightByIcao24(icao24)
+                && aircraftPositionRepository.deleteAircraftPositionByIcao24(icao24);
+
     }
 
 }

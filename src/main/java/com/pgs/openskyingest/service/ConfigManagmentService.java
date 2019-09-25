@@ -24,4 +24,6 @@ public interface ConfigManagmentService {
     List<AircraftMetadata> retrieveAllAircraft();
 
     String[] retrieveAllAircraftTailNumber();
+
+    Boolean deleteAircraft(String icao24);
 }
