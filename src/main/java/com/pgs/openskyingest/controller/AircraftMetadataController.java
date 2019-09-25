@@ -60,7 +60,7 @@ public class AircraftMetadataController {
     }
 
     @RequestMapping(value = "/aircraft/metadata", method = RequestMethod.DELETE)
-    public Long deleteTrackingAircraft(String icao24) {
+    public Long deleteTrackingAircraft(@RequestBody String icao24) {
         return configManagmentService.deleteAircraft(icao24);
     }
 
