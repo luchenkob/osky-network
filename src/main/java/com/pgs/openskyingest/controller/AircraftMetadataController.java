@@ -38,15 +38,14 @@ public class AircraftMetadataController {
         }
     }
 
-    // TODO: we will change it back to icao24 again
     @RequestMapping(value = "/aircraft/metadata", method = RequestMethod.POST)
-    public AircraftMetadata addAircraftForWatching(@RequestBody String tailNumber) {
-        tailNumber = tailNumber.toUpperCase();
-        int result = configManagmentService.insertWatchingAircaftConfig(tailNumber);
+    public ResponseGeneric addAircraftForWatching(@RequestBody String icao24) {
+        icao24 = icao24.toLowerCase();
+        int result = configManagmentService.insertWatchingAircaftConfig(icao24);
         if (result > 0) {
-            return configManagmentService.retrieveAircraftMetadataByRegistration(tailNumber).get(0);
+            return new ResponseGeneric(false, "Add aircraft successfully", configManagmentService.retrieveAircraftMetadataByIcao24(icao24));
         }
-        return null;
+        return new ResponseGeneric(true, "The aircraft has already existed in our database", null);
     }
 
     @RequestMapping(value = "/aircraft/icao24", method = RequestMethod.GET)

@@ -12,10 +12,10 @@ public interface ConfigManagmentService {
      * 2. invoke opensky api to get icao24 corresponding to this tailNumber
      * 3. after having icao24, we'll invoke get metadata of aircraft
      * 4. persist all metadata aircrafts to mongodb
-     * @param tailNumbers
+     * @param icao24s
      * @return number of document had been inserted
      */
-    int insertWatchingAircaftConfig(String... tailNumbers) ;
+    int insertWatchingAircaftConfig(String... icao24s) ;
 
     AircraftMetadata retrieveAircraftMetadataByIcao24(String icao24);
 
