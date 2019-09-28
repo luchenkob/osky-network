@@ -24,8 +24,8 @@ public class AircraftCompareController {
                                                                         @RequestParam(value = "from") Long from,
                                                                         @RequestParam(value = "to") Long to,
                                                                         @RequestParam(value = "clientTz", defaultValue = "UTC") String clientTz) {
-        String[] tailNumbers = aircrafts.toUpperCase().split(",");
-        return aircraftFlightService.retrieveAircraftsFlightGroupByDate(tailNumbers, from, to, clientTz);
+        String[] tailNumberWithIcao24s = aircrafts.toUpperCase().split(",");
+        return aircraftFlightService.retrieveAircraftsFlightGroupByDate(tailNumberWithIcao24s, from, to, clientTz);
     }
 
 }

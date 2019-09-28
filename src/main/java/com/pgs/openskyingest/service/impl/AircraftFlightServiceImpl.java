@@ -21,6 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,11 +40,24 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     private AirportMetadataRepository airportMetadataRepository;
 
     @Override
-    public List<AircraftFlight> retrieveAircraftFlightInTime(String tailNumber, Long fromTimestamp, Long toTimestamp) {
-        String icao24 = aircraftMetadataRepository.findAircraftMetadataByRegistration(tailNumber).getIcao24();
+    public List<AircraftFlight> retrieveAircraftFlightInTime(String tailNumberWithIcao24, Long fromTimestamp, Long toTimestamp) {
+        // parse tailNumberWithIcao24 to get tailNumber vs icao24
+        Pattern pattern = Pattern.compile("(.*)\\((.*)\\)");
+        Matcher matcher = pattern.matcher(tailNumberWithIcao24);
+
+        String tailNumber = "";
+        String icao24 = "";
+        while (matcher.find()) {
+            tailNumber = matcher.group(1);
+            icao24 = matcher.group(2).toLowerCase();
+        }
+
+        logger.info("Retrieve aircraft flight of icao24 {} tailNumber {} in time [{}, {}]", icao24, tailNumber, fromTimestamp, toTimestamp);
+
         List<AircraftFlight> flights = aircraftFlightRepository.findAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, fromTimestamp, toTimestamp);
 
         for (AircraftFlight flight : flights) {
+            flight.setTailNumber(tailNumber + "(" + icao24 + ")");
             flight.setEstDepartureAirport(getAiportName(flight.getEstDepartureAirport()));
             flight.setEstArrivalAirport(getAiportName(flight.getEstArrivalAirport()));
         }
@@ -51,12 +66,11 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     }
 
     @Override
-    public Map<String, List<AircraftFlight>> retrieveAircraftFlightGroupByDate(String tailNumber, Long fromTimestamp, Long toTimestamp, String clientTz) {
+    public Map<String, List<AircraftFlight>> retrieveAircraftFlightGroupByDate(String tailNumberWithIcao24, Long fromTimestamp, Long toTimestamp, String clientTz) {
         Map<String, List<AircraftFlight>> retData = new LinkedHashMap<>();
-        List<AircraftFlight> aircraftFlights = retrieveAircraftFlightInTime(tailNumber, fromTimestamp, toTimestamp);
+        List<AircraftFlight> aircraftFlights = retrieveAircraftFlightInTime(tailNumberWithIcao24, fromTimestamp, toTimestamp);
 
         for (AircraftFlight flight : aircraftFlights) {
-            flight.setTailNumber(tailNumber);
             DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             sdf.setTimeZone(TimeZone.getTimeZone(clientTz));
 
@@ -75,16 +89,18 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     }
 
     @Override
-    public Map<String, List<AircraftFlightCompare>> retrieveAircraftsFlightGroupByDate(String[] tailNumbers, Long from, Long to, String clientTz) {
+    public Map<String, List<AircraftFlightCompare>> retrieveAircraftsFlightGroupByDate(String[] tailNumberWithIcao24s, Long from, Long to, String clientTz) {
         Map<String, List<AircraftFlightCompare>> retData = new LinkedHashMap<>();
 
         // fill data
-        for (String tailNumber : tailNumbers) {
-            Map<String, List<AircraftFlight>> flightGroupByDate = retrieveAircraftFlightGroupByDate(tailNumber, from, to, clientTz);
+        for (String tailNumberWithIcao24 : tailNumberWithIcao24s) {
+            Map<String, List<AircraftFlight>> flightGroupByDate = retrieveAircraftFlightGroupByDate(tailNumberWithIcao24, from, to, clientTz);
 
             for (String date : flightGroupByDate.keySet()) {
                 List<AircraftFlight> flights = flightGroupByDate.get(date);
-                AircraftFlightCompare aircraftFlightCompare = new AircraftFlightCompare(tailNumber);
+
+                AircraftFlightCompare aircraftFlightCompare = new AircraftFlightCompare(flights.get(0).getTailNumber());
+
                 aircraftFlightCompare.setDeparture(flights.stream().map(f -> String.valueOf(f.getFirstSeen())).collect(Collectors.joining(",")));
 
                 aircraftFlightCompare.setDepartureAirport(flights.stream().map(f -> {
@@ -118,11 +134,11 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
             List<AircraftFlightCompare> newList = new ArrayList<>();
             List<AircraftFlightCompare> currentList = entry.getValue();
 
-            for (String tailNumber : tailNumbers) {
+            for (String tailNumberWithIcao24 : tailNumberWithIcao24s) {
                 newList.add(currentList.stream()
-                        .filter(afc -> afc.getTailNumber().equalsIgnoreCase(tailNumber))
+                        .filter(afc -> afc.getTailNumber().equalsIgnoreCase(tailNumberWithIcao24))
                         .findFirst()
-                        .orElse(new AircraftFlightCompare(tailNumber)));
+                        .orElse(new AircraftFlightCompare(tailNumberWithIcao24)));
             }
             //update entry
             entry.setValue(newList);
