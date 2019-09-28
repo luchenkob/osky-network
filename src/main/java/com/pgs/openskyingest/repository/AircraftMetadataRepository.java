@@ -15,7 +15,7 @@ public interface AircraftMetadataRepository extends MongoRepository<AircraftMeta
 
     List<AircraftMetadata> findAircraftMetadataByRegistrationContains(String registration);
 
-    @Query(value="{}",fields="{ '_id': 0, 'registration' : 1}")
+    @Query(value="{}",fields="{ '_id': 0, 'registration' : 1, 'icao24' : 1}")
     String[] findAllAircraftTailNumber();
 
     @Query(value="{}",fields="{ '_id': 0, 'icao24' : 1}")

@@ -63,7 +63,8 @@ public class AircraftMetadataController {
         for (String json : jsonRets) {
             try {
                 String tailNumber = objectMapper.readTree(json).get("registration").textValue();
-                ret.add(tailNumber);
+                String icao24 = objectMapper.readTree(json).get("icao24").textValue();
+                ret.add(tailNumber + "(" + icao24 + ")");
             } catch (Exception e) {
                 // do nothing
             }
