@@ -2,12 +2,13 @@ package com.pgs.openskyingest.service;
 
 import com.pgs.openskyingest.model.AircraftFlight;
 import com.pgs.openskyingest.model.AircraftMetadata;
+import com.pgs.openskyingest.model.AircraftOpenskyInfo;
 import com.pgs.openskyingest.model.AircraftPosition;
 
 import java.util.List;
 
 public interface OpenSkyIntegrationService {
-    List<String> getIcao24FromTailNumber(String tailNumber);
+    List<AircraftOpenskyInfo> getIcao24FromTailNumber(String tailNumber);
 
     AircraftMetadata getMetadataOfAircraft(String icao24);
 

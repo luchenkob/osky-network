@@ -35,28 +35,23 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
     private AircraftFlightRepository aircraftFlightRepository;
 
     @Override
-    public int insertWatchingAircaftConfig(String... tailNumbers) {
-        logger.info("Adding config of {} aircrafts", tailNumbers.length);
+    public int insertWatchingAircaftConfig(String... icao24s) {
+        logger.info("Adding config of {} aircrafts", icao24s.length);
 
         // OpenSky seem that does not allow more than 2 concurrent request from the same client
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
         List<AircraftMetadata> listAircrafts = new ArrayList<>();
-        for (String tailNumber : tailNumbers) {
+        for (String icao24 : icao24s) {
             Runnable runnable = () -> {
-                if (aircraftMetadataRepository.findAircraftMetadataByRegistration(tailNumber) == null) {
-                    openSkyIntegrationService.getIcao24FromTailNumber(tailNumber).forEach(icao24 -> {
-                        if (!Constant.ICAO24_NOT_FOUND.equalsIgnoreCase(icao24)) {
-                            AircraftMetadata aircraftMetadata = openSkyIntegrationService.getMetadataOfAircraft(icao24);
-
-                            if (aircraftMetadata != null) {
-                                aircraftMetadata.setIsTracking(Boolean.TRUE);
-                                listAircrafts.add(aircraftMetadata);
-                            }
-                        }
-                    });
+                if (aircraftMetadataRepository.findAircraftMetadataByIcao24(icao24) == null) {
+                    AircraftMetadata aircraftMetadata = openSkyIntegrationService.getMetadataOfAircraft(icao24);
+                    if (aircraftMetadata != null) {
+                        aircraftMetadata.setIsTracking(Boolean.TRUE);
+                        listAircrafts.add(aircraftMetadata);
+                    }
                 } else {
-                    logger.info("{} had existed in database", tailNumber);
+                    logger.info("{} had existed in database", icao24);
                 }
             };
             executor.execute(runnable);

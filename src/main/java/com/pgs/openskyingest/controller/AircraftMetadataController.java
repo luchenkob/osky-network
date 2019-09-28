@@ -2,7 +2,10 @@ package com.pgs.openskyingest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgs.openskyingest.model.AircraftMetadata;
+import com.pgs.openskyingest.model.AircraftOpenskyInfo;
+import com.pgs.openskyingest.response.ResponseGeneric;
 import com.pgs.openskyingest.service.ConfigManagmentService;
+import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,6 +25,9 @@ public class AircraftMetadataController {
     @Autowired
     private ConfigManagmentService configManagmentService;
 
+    @Autowired
+    private OpenSkyIntegrationService openSkyIntegrationService;
+
     @RequestMapping(value = "/aircraft/metadata/all", method = RequestMethod.GET)
     public List<AircraftMetadata> getAllAircraft(@RequestParam(value = "tailNumber", defaultValue = "") String tailNumber) {
         tailNumber = tailNumber.toUpperCase();
@@ -32,6 +38,7 @@ public class AircraftMetadataController {
         }
     }
 
+    // TODO: we will change it back to icao24 again
     @RequestMapping(value = "/aircraft/metadata", method = RequestMethod.POST)
     public AircraftMetadata addAircraftForWatching(@RequestBody String tailNumber) {
         tailNumber = tailNumber.toUpperCase();
@@ -40,6 +47,13 @@ public class AircraftMetadataController {
             return configManagmentService.retrieveAircraftMetadataByRegistration(tailNumber).get(0);
         }
         return null;
+    }
+
+    @RequestMapping(value = "/aircraft/icao24", method = RequestMethod.GET)
+    public ResponseGeneric getIcao24FromTailNumber(@RequestParam(value = "tailNumber", defaultValue = "") String tailNumber) {
+        tailNumber = tailNumber.toUpperCase().trim();
+        List<AircraftOpenskyInfo> icao24Info = openSkyIntegrationService.getIcao24FromTailNumber(tailNumber);
+        return new ResponseGeneric(true, "Found " + icao24Info.size() + " aircraft info with tail number: " + tailNumber, icao24Info);
     }
 
     @RequestMapping(value = "/aircraft/metadata/tailNumbers", method = RequestMethod.GET)
