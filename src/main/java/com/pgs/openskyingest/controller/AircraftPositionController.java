@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = { "http://localhost:3000", "https://opensky-ingest-fe.herokuapp.com"})
@@ -20,13 +19,14 @@ public class AircraftPositionController {
     @Autowired
     private AircraftPositionService aircraftPositionService;
 
-    @RequestMapping(value = "/aircraft/{tailNumber}/position", method = RequestMethod.GET)
-    public List<AircraftPosition> getAllPositionOfAircraftFrom(@PathVariable String tailNumber,
+    @RequestMapping(value = "/aircraft/{tailNumberWithIcao24}/position", method = RequestMethod.GET)
+    public List<AircraftPosition> getAllPositionOfAircraftFrom(@PathVariable String tailNumberWithIcao24,
                                                                @RequestParam(value = "from") Long fromTimestamp,
                                                                @RequestParam(value = "to") Long toTimestamp) {
-        return aircraftPositionService.retrieveAircraftPositionInTime(tailNumber.toUpperCase(), fromTimestamp, toTimestamp);
+        return aircraftPositionService.retrieveAircraftPositionInTime(tailNumberWithIcao24.toUpperCase(), fromTimestamp, toTimestamp);
     }
 
+    // TODO: this function is supposed not use anymore
     @RequestMapping(value = "/aircraft/{tailNumber}/position/current", method = RequestMethod.GET)
     public List<AircraftPosition> getAllPositionOfAircraftFrom(@PathVariable String tailNumber) {
         return aircraftPositionService.retrieveCurrentAircraftPosition(tailNumber.toUpperCase());

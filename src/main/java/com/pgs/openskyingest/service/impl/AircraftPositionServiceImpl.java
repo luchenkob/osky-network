@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,8 +37,16 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
     private OpenSkyIntegrationService openSkyIntegrationService;
 
     @Override
-    public List<AircraftPosition> retrieveAircraftPositionInTime(String tailNumber, Long fromTime, Long toTime) {
-        String icao24 = aircraftMetadataRepository.findAircraftMetadataByRegistration(tailNumber).getIcao24();
+    public List<AircraftPosition> retrieveAircraftPositionInTime(String tailNumberWithIcao24, Long fromTime, Long toTime) {
+        Pattern pattern = Pattern.compile("(.*)\\((.*)\\)");
+        Matcher matcher = pattern.matcher(tailNumberWithIcao24);
+
+        String icao24 = "";
+
+        while (matcher.find()) {
+            icao24 = matcher.group(2).toLowerCase();
+        }
+
         return aircraftPositionRepository.findAircraftPositionsByIcao24EqualsAndTimePositionBetween(icao24, fromTime, toTime);
     }
 
