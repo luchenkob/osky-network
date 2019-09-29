@@ -58,7 +58,7 @@ public class AircraftMetadataController {
     @RequestMapping(value = "/aircraft/metadata/tailNumbers", method = RequestMethod.GET)
     public List<String> getAllAircraftTailNumber() {
         List<String> ret = new ArrayList<>();
-        String[] jsonRets = configManagmentService.retrieveAllAircraftTailNumber();
+        List<String> jsonRets = configManagmentService.retrieveAllAircraftTailNumber();
         ObjectMapper objectMapper = new ObjectMapper();
         for (String json : jsonRets) {
             try {

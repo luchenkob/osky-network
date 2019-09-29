@@ -8,8 +8,6 @@ public interface AircraftPositionService {
 
     List<AircraftPosition> retrieveAircraftPositionInTime(String tailNumberWithIcao24, Long fromTimestamp, Long toTimestamp);
 
-    List<AircraftPosition> retrieveCurrentAircraftPosition(String tailNumber);
-
     List<AircraftPosition> retrieveCurrentPositionOfAllAircraft();
 
     /**

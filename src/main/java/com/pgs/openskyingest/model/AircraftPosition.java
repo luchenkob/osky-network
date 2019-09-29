@@ -34,6 +34,7 @@ public class AircraftPosition {
     // Boolean value which indicates if the position was retrieved from a surface position report.
     private Boolean onGround;
 
+    private String tailNumber;
 //    0  icao24	        "a11780",
 //    1  callsign	        "N17GX ",
 //    2  origin_country    "United States",

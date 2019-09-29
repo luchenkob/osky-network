@@ -26,12 +26,6 @@ public class AircraftPositionController {
         return aircraftPositionService.retrieveAircraftPositionInTime(tailNumberWithIcao24.toUpperCase(), fromTimestamp, toTimestamp);
     }
 
-    // TODO: this function is supposed not use anymore
-    @RequestMapping(value = "/aircraft/{tailNumber}/position/current", method = RequestMethod.GET)
-    public List<AircraftPosition> getAllPositionOfAircraftFrom(@PathVariable String tailNumber) {
-        return aircraftPositionService.retrieveCurrentAircraftPosition(tailNumber.toUpperCase());
-    }
-
     @RequestMapping(value = "/aircraft/position/current", method = RequestMethod.GET)
     public List<AircraftPosition> getCurrentPositionOfAllAircraft() {
         return aircraftPositionService.retrieveCurrentPositionOfAllAircraft();

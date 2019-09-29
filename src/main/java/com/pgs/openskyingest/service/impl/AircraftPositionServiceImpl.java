@@ -2,7 +2,6 @@ package com.pgs.openskyingest.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgs.openskyingest.model.AircraftFlight;
-import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftPosition;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
 import com.pgs.openskyingest.repository.AircraftMetadataRepository;
@@ -13,8 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -51,25 +51,20 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
     }
 
     @Override
-    public List<AircraftPosition> retrieveCurrentAircraftPosition(String tailNumber) {
-        String icao24 = aircraftMetadataRepository.findAircraftMetadataByRegistration(tailNumber).getIcao24();
-        return openSkyIntegrationService.getAllStateVectorOfAircraft(icao24, Instant.now().getEpochSecond());
-    }
-
-    @Override
     public List<AircraftPosition> retrieveCurrentPositionOfAllAircraft() {
-        List<String> jsonRets = aircraftMetadataRepository.findAllAircraftIcao24();
-        List<String> icao24s = new ArrayList<>();
+        List<String> jsonRets = aircraftMetadataRepository.findAllAircraftTailNumber();
+        Map<String, String> icao24WithRegistration = new LinkedHashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
         for (String json : jsonRets) {
             try {
                 String icao24 = objectMapper.readTree(json).get("icao24").textValue();
-                icao24s.add(icao24);
+                String registration = objectMapper.readTree(json).get("registration").textValue();
+                icao24WithRegistration.put(icao24, registration);
             } catch (Exception e) {
                 // do nothing
             }
         }
-        return openSkyIntegrationService.getAllStateVectorOfMultiAircraft(icao24s);
+        return openSkyIntegrationService.getAllStateVectorOfMultiAircraft(icao24WithRegistration);
     }
 
     @Override

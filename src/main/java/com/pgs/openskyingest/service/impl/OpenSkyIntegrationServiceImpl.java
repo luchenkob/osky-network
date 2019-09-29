@@ -3,7 +3,6 @@ package com.pgs.openskyingest.service.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pgs.openskyingest.constant.Constant;
 import com.pgs.openskyingest.model.AircraftFlight;
 import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftOpenskyInfo;
@@ -20,6 +19,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService {
@@ -72,18 +73,11 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
     }
 
     @Override
-    public List<AircraftPosition> getAllStateVectorOfAircraft(String icao24, Long timestamp) {
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet("https://tinnt:dnMdFfeKDcf9vQ!@opensky-network.org/api/states/all?icao24=" + icao24 + "&time=" + timestamp);
-
-        return executeGetAndExtractAircraftPosition(client, httpGet);
-    }
-
-    @Override
-    public List<AircraftPosition> getAllStateVectorOfMultiAircraft(List<String> icao24s) {
+    public List<AircraftPosition> getAllStateVectorOfMultiAircraft(Map<String, String> icao24WithRegistrations) {
         CloseableHttpClient client = HttpClients.createDefault();
         StringBuilder url = new StringBuilder("https://tinnt:dnMdFfeKDcf9vQ!@opensky-network.org/api/states/all?");
 
+        Set<String> icao24s = icao24WithRegistrations.keySet();
         icao24s.forEach(icao24 -> {
             url.append("icao24=");
             url.append(icao24);
@@ -94,7 +88,7 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
 
         HttpGet httpGet = new HttpGet(urlStr.substring(0, urlStr.length() - 1));
 
-        return executeGetAndExtractAircraftPosition(client, httpGet);
+        return executeGetAndExtractAircraftPosition(client, httpGet, icao24WithRegistrations);
     }
 
     @Override
@@ -149,7 +143,7 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
         return null;
     }
 
-    private List<AircraftPosition> executeGetAndExtractAircraftPosition(CloseableHttpClient client, HttpGet httpGet) {
+    private List<AircraftPosition> executeGetAndExtractAircraftPosition(CloseableHttpClient client, HttpGet httpGet, Map<String, String> icao24WithRegistrations) {
         try (CloseableHttpResponse response = client.execute(httpGet)) {
             String json = EntityUtils.toString(response.getEntity());
             logger.info("Returned state vectors of aircraft at {}: {}", httpGet.toString(), json);
@@ -167,6 +161,7 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
                     aircraftPosition.setOnGround(state.path(8).asBoolean());
                     aircraftPosition.setVerticalRate(state.path(9).asDouble());
                     aircraftPosition.setTrueTrack(state.path(10).asDouble());
+                    aircraftPosition.setTailNumber(icao24WithRegistrations.get(aircraftPosition.getIcao24()));
 
                     logger.info("Aircraft position obtain from state array: {}", aircraftPosition.toString());
                     aircraftPositions.add(aircraftPosition);

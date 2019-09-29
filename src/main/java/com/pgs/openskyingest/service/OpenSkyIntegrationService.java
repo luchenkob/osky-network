@@ -6,15 +6,14 @@ import com.pgs.openskyingest.model.AircraftOpenskyInfo;
 import com.pgs.openskyingest.model.AircraftPosition;
 
 import java.util.List;
+import java.util.Map;
 
 public interface OpenSkyIntegrationService {
     List<AircraftOpenskyInfo> getIcao24FromTailNumber(String tailNumber);
 
     AircraftMetadata getMetadataOfAircraft(String icao24);
 
-    List<AircraftPosition> getAllStateVectorOfAircraft(String icao24, Long timestamp);
-
-    List<AircraftPosition> getAllStateVectorOfMultiAircraft(List<String> icao24s);
+    List<AircraftPosition> getAllStateVectorOfMultiAircraft(Map<String, String> icao24WithRegistrations);
 
     /**
      * GET /flights/aircraft

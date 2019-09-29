@@ -23,7 +23,7 @@ public interface ConfigManagmentService {
 
     List<AircraftMetadata> retrieveAllAircraft();
 
-    String[] retrieveAllAircraftTailNumber();
+    List<String> retrieveAllAircraftTailNumber();
 
     Long deleteAircraft(String icao24);
 }

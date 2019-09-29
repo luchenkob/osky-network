@@ -1,6 +1,5 @@
 package com.pgs.openskyingest.service.impl;
 
-import com.pgs.openskyingest.constant.Constant;
 import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
 import com.pgs.openskyingest.repository.AircraftMetadataRepository;
@@ -84,7 +83,7 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
     }
 
     @Override
-    public String[] retrieveAllAircraftTailNumber() {
+    public List<String> retrieveAllAircraftTailNumber() {
         return aircraftMetadataRepository.findAllAircraftTailNumber();
     }
 
