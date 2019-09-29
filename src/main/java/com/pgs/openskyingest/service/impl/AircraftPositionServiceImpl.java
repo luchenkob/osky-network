@@ -53,18 +53,22 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
     @Override
     public List<AircraftPosition> retrieveCurrentPositionOfAllAircraft() {
         List<String> jsonRets = aircraftMetadataRepository.findAllAircraftTailNumber();
-        Map<String, String> icao24WithRegistration = new LinkedHashMap<>();
-        ObjectMapper objectMapper = new ObjectMapper();
-        for (String json : jsonRets) {
-            try {
-                String icao24 = objectMapper.readTree(json).get("icao24").textValue();
-                String registration = objectMapper.readTree(json).get("registration").textValue();
-                icao24WithRegistration.put(icao24, registration);
-            } catch (Exception e) {
-                // do nothing
-            }
-        }
+        Map<String, String> icao24WithRegistration = parseTailNumberAndIcao24(jsonRets);
         return openSkyIntegrationService.getAllStateVectorOfMultiAircraft(icao24WithRegistration);
+    }
+
+    @Override
+    public List<AircraftPosition> retrieveLatestPositionOfAllAircraft() {
+        List<AircraftPosition> aircraftPositions = aircraftPositionRepository.findLastestPositionOfAllAircraft();
+
+        // fill tail Number
+        List<String> jsonRets = aircraftMetadataRepository.findAllAircraftTailNumber();
+        Map<String, String> icao24WithRegistration = parseTailNumberAndIcao24(jsonRets);
+
+        aircraftPositions.stream()
+                .forEach(aircraftPosition -> aircraftPosition.setTailNumber(icao24WithRegistration.get(aircraftPosition.getIcao24())));
+
+        return aircraftPositions;
     }
 
     @Override
@@ -92,5 +96,20 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
         executor.shutdown();
         while (!executor.isTerminated()) {
         }
+    }
+
+    private Map<String, String> parseTailNumberAndIcao24(List<String> jsonRets) {
+        Map<String, String> icao24WithRegistration = new LinkedHashMap<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        for (String json : jsonRets) {
+            try {
+                String icao24 = objectMapper.readTree(json).get("icao24").textValue();
+                String registration = objectMapper.readTree(json).get("registration").textValue();
+                icao24WithRegistration.put(icao24, registration);
+            } catch (Exception e) {
+                // do nothing
+            }
+        }
+        return icao24WithRegistration;
     }
 }

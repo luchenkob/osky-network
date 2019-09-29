@@ -10,6 +10,8 @@ public interface AircraftPositionService {
 
     List<AircraftPosition> retrieveCurrentPositionOfAllAircraft();
 
+    List<AircraftPosition> retrieveLatestPositionOfAllAircraft();
+
     /**
      * This method will do:
      *  1. Identify flights which are latest flights

@@ -30,4 +30,9 @@ public class AircraftPositionController {
     public List<AircraftPosition> getCurrentPositionOfAllAircraft() {
         return aircraftPositionService.retrieveCurrentPositionOfAllAircraft();
     }
+
+    @RequestMapping(value = "/aircraft/position/latest", method = RequestMethod.GET)
+    public List<AircraftPosition> getLatestPositionOfAllAircraft() {
+        return aircraftPositionService.retrieveLatestPositionOfAllAircraft();
+    }
 }
