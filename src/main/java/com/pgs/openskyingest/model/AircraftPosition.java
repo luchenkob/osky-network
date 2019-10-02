@@ -35,6 +35,12 @@ public class AircraftPosition {
     private Boolean onGround;
 
     private String tailNumber;
+
+    // airport vs airportRegion used for latest position
+    private String airport;
+
+    private String airportRegion;
+
 //    0  icao24	        "a11780",
 //    1  callsign	        "N17GX ",
 //    2  origin_country    "United States",

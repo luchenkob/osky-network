@@ -3,10 +3,13 @@ package com.pgs.openskyingest.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgs.openskyingest.model.AircraftFlight;
 import com.pgs.openskyingest.model.AircraftPosition;
+import com.pgs.openskyingest.model.AirportMetadata;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
 import com.pgs.openskyingest.repository.AircraftMetadataRepository;
 import com.pgs.openskyingest.repository.AircraftPositionRepository;
+import com.pgs.openskyingest.repository.AirportMetadataRepository;
 import com.pgs.openskyingest.service.AircraftPositionService;
+import com.pgs.openskyingest.service.AirportMetadataService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +38,9 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
 
     @Autowired
     private OpenSkyIntegrationService openSkyIntegrationService;
+
+    @Autowired
+    private AirportMetadataRepository airportMetadataRepository;
 
     @Override
     public List<AircraftPosition> retrieveAircraftPositionInTime(String tailNumberWithIcao24, Long fromTime, Long toTime) {
@@ -65,8 +71,22 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
         List<String> jsonRets = aircraftMetadataRepository.findAllAircraftTailNumber();
         Map<String, String> icao24WithRegistration = parseTailNumberAndIcao24(jsonRets);
 
-        aircraftPositions.stream()
-                .forEach(aircraftPosition -> aircraftPosition.setTailNumber(icao24WithRegistration.get(aircraftPosition.getIcao24())));
+        ExecutorService executor = Executors.newFixedThreadPool(6);
+        for (AircraftPosition aircraftPosition : aircraftPositions) {
+            Runnable runnable = () -> {
+                aircraftPosition.setTailNumber(icao24WithRegistration.get(aircraftPosition.getIcao24()));
+                AircraftFlight aircraftFlight = aircraftFlightRepository.findAircraftFlightByIcao24AndFirstSeenLessThanEqualAndLastSeenGreaterThanEqual(aircraftPosition.getIcao24(), aircraftPosition.getTimePosition(), aircraftPosition.getTimePosition());
+                AirportMetadata airportMetadata = airportMetadataRepository.findAirportMetadataByGpsCode(aircraftFlight.getEstArrivalAirport()).get(0);
+                aircraftPosition.setAirport(airportMetadata.getName());
+                aircraftPosition.setAirportRegion(airportMetadata.getIsoRegion());
+            };
+
+            executor.execute(runnable);
+        }
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+            // waiting..
+        }
 
         return aircraftPositions;
     }
