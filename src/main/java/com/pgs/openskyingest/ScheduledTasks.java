@@ -10,6 +10,8 @@ import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Component
+@EnableAsync
 public class ScheduledTasks {
     private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
 
@@ -37,6 +40,7 @@ public class ScheduledTasks {
     @Autowired
     private OpenSkyIntegrationService openSkyIntegrationService;
 
+    @Async
     @Scheduled(fixedRate = 2 * 60 * 60 * 1000) // 2hrs
     public void updateFlightsOfWatchingAircrafts() {
         List<String> jsonRets = aircraftMetadataRepository.findAllAircraftTailNumber();
@@ -79,6 +83,7 @@ public class ScheduledTasks {
         }
     }
 
+    @Async
     @Scheduled(fixedRate = 2 * 60 * 1000)  // 2m
     public void updatePositionOfWatchingAircrafts() {
         logger.info("Trigger getting and updating all watching aircraft...");
