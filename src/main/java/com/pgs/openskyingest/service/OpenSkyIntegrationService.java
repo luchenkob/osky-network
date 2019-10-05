@@ -16,6 +16,12 @@ public interface OpenSkyIntegrationService {
     List<AircraftPosition> getAllStateVectorOfMultiAircraft(Map<String, String> icao24WithRegistrations);
 
     /**
+     * GET /states/all
+     * @return
+     */
+    List<AircraftPosition> getAllCurrentStateVector();
+
+    /**
      * GET /flights/aircraft
      * The given time interval must not be larger than 30 days!
      * @param icao24 Unique ICAO 24-bit address of the transponder in hex string representation.

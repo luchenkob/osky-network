@@ -11,6 +11,8 @@ public interface AircraftMetadataRepository extends MongoRepository<AircraftMeta
 
     AircraftMetadata findAircraftMetadataByIcao24(String icao24);
 
+    boolean existsByIcao24(String icao24);
+
     List<AircraftMetadata> findAircraftMetadataByRegistrationContains(String registration);
 
     @Query(value="{}",fields="{ '_id': 0, 'registration' : 1, 'icao24' : 1}")

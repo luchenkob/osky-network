@@ -9,7 +9,6 @@ import com.pgs.openskyingest.repository.AircraftMetadataRepository;
 import com.pgs.openskyingest.repository.AircraftPositionRepository;
 import com.pgs.openskyingest.repository.AirportMetadataRepository;
 import com.pgs.openskyingest.service.AircraftPositionService;
-import com.pgs.openskyingest.service.AirportMetadataService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -91,6 +90,8 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
         return aircraftPositions;
     }
 
+
+    // Since we will have ~300k aircrafts, we won't use this method any more.
     @Override
     public void updateAircraftPositionFromFlight(String icao24) {
         // identify latest flights
