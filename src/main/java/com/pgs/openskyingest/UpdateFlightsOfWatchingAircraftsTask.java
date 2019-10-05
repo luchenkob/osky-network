@@ -2,7 +2,6 @@ package com.pgs.openskyingest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgs.openskyingest.model.AircraftFlight;
-import com.pgs.openskyingest.model.AircraftPosition;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
 import com.pgs.openskyingest.repository.AircraftMetadataRepository;
 import com.pgs.openskyingest.repository.AircraftPositionRepository;
@@ -14,19 +13,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Component
-public class ScheduledTasks {
-    private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
-
-    @Autowired
-    private AircraftPositionRepository aircraftPositionRepository;
+public class UpdateFlightsOfWatchingAircraftsTask {
+    private static final Logger logger = LoggerFactory.getLogger(UpdateFlightsOfWatchingAircraftsTask.class);
 
     @Autowired
     private AircraftMetadataRepository aircraftMetadataRepository;
@@ -76,38 +70,6 @@ public class ScheduledTasks {
         executor.shutdown();
         while(!executor.isTerminated()) {
             //waiting threads finish running
-        }
-    }
-
-    @Scheduled(fixedRate = 2 * 60 * 1000)  // 2m
-    public void updatePositionOfWatchingAircrafts() {
-        logger.info("Trigger getting and updating all watching aircraft...");
-
-        List<AircraftPosition> livingPositionOfAircrafts = openSkyIntegrationService.getAllCurrentStateVector();
-        logger.info("opensky return {} records of all state vectors", livingPositionOfAircrafts.size());
-
-        List<AircraftPosition> willInsertToMongo = Collections.synchronizedList( new ArrayList() );
-
-        ExecutorService executor = Executors.newFixedThreadPool(16);
-        for (AircraftPosition position : livingPositionOfAircrafts) {
-            executor.execute(() -> {
-                boolean icao24Existed = aircraftMetadataRepository.existsByIcao24(position.getIcao24());
-                if (icao24Existed) {
-                    // update list
-                    willInsertToMongo.add(position);
-                }
-            });
-        }
-        executor.shutdown();
-        while(!executor.isTerminated()) {
-            //waiting threads finish running
-        }
-
-        if (!willInsertToMongo.isEmpty()) {
-            logger.info("saving {} aircrafts positions", willInsertToMongo.size());
-            aircraftPositionRepository.saveAll(willInsertToMongo);
-        } else {
-            logger.info("saving 0 aircrafts positions");
         }
     }
 
