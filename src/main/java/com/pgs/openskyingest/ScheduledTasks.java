@@ -59,12 +59,12 @@ public class ScheduledTasks {
                     logger.info("For icao24 {} opensky return {} flights", icao24, flights.size());
 
                     List<AircraftFlight> dbFlights = aircraftFlightRepository.findAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, begin, end);
-                    logger.info("For icao24 {} in database return {} flights ", icao24, flights.size());
+                    logger.info("For icao24 {} in database return {} flights ", icao24, dbFlights.size());
 
                     List<AircraftFlight> newFlights = flights.stream().filter(flight -> !dbFlights.contains(flight)).collect(Collectors.toList());
 
                     if (!newFlights.isEmpty()) {
-                        logger.info("For icao24 {}, found and saved {} new flights", icao24, newFlights);
+                        logger.info("For icao24 {}, found and saved {} new flights", icao24, newFlights.size());
                         aircraftFlightRepository.saveAll(newFlights);
                     }
                 } catch (Exception e) {
