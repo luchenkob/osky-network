@@ -41,7 +41,7 @@ public class ScheduledTasks {
     private OpenSkyIntegrationService openSkyIntegrationService;
 
     @Async
-    @Scheduled(fixedRate = 2 * 60 * 60 * 1000) // 2hrs
+    @Scheduled(fixedRate = 12 * 60 * 60 * 1000) // 12hrs
     public void updateFlightsOfWatchingAircrafts() {
         List<String> jsonRets = aircraftMetadataRepository.findAllAircraftTailNumber();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -93,7 +93,7 @@ public class ScheduledTasks {
 
         List<AircraftPosition> willInsertToMongo = Collections.synchronizedList( new ArrayList() );
 
-        ExecutorService executor = Executors.newFixedThreadPool(16);
+        ExecutorService executor = Executors.newFixedThreadPool(6);
         for (AircraftPosition position : livingPositionOfAircrafts) {
             executor.execute(() -> {
                 boolean icao24Existed = aircraftMetadataRepository.existsByIcao24(position.getIcao24());
