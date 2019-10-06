@@ -2,6 +2,7 @@ package com.pgs.openskyingest.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgs.openskyingest.model.AircraftFlight;
+import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftPosition;
 import com.pgs.openskyingest.model.AirportMetadata;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
@@ -11,9 +12,13 @@ import com.pgs.openskyingest.repository.AirportMetadataRepository;
 import com.pgs.openskyingest.service.AircraftPositionService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,27 +62,47 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
 
     @Override
     public List<AircraftPosition> retrieveCurrentPositionOfAllAircraft() {
-        List<String> jsonRets = aircraftMetadataRepository.findAllAircraftTailNumber();
-        Map<String, String> icao24WithRegistration = parseTailNumberAndIcao24(jsonRets);
-        return openSkyIntegrationService.getAllStateVectorOfMultiAircraft(icao24WithRegistration);
+        List<AircraftPosition> currentAircraftPositionList = openSkyIntegrationService.getAllCurrentStateVector();
+        List<AircraftPosition> returnList = Collections.synchronizedList( new ArrayList() );
+
+        ExecutorService executor = Executors.newFixedThreadPool(15);
+        for (AircraftPosition position : currentAircraftPositionList) {
+            executor.execute(() -> {
+                if (aircraftMetadataRepository.existsByIcao24(position.getIcao24())) {
+                    // update list
+                    returnList.add(position);
+                }
+            });
+        }
+        executor.shutdown();
+        while(!executor.isTerminated()) {
+            //waiting threads finish running
+        }
+
+        return returnList;
     }
 
     @Override
-    public List<AircraftPosition> retrieveLatestPositionOfAllAircraft() {
-        List<AircraftPosition> aircraftPositions = aircraftPositionRepository.findLastestPositionOfAllAircraft();
+    public List<AircraftPosition> retrieveLatestPositionOfAllAircraft(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<AircraftPosition> aircraftPositions = aircraftPositionRepository.findLastestPositionOfAllAircraft(pageable);
 
         // fill tail Number
-        List<String> jsonRets = aircraftMetadataRepository.findAllAircraftTailNumber();
-        Map<String, String> icao24WithRegistration = parseTailNumberAndIcao24(jsonRets);
-
-        ExecutorService executor = Executors.newFixedThreadPool(6);
+        ExecutorService executor = Executors.newFixedThreadPool(size);
         for (AircraftPosition aircraftPosition : aircraftPositions) {
             Runnable runnable = () -> {
-                aircraftPosition.setTailNumber(icao24WithRegistration.get(aircraftPosition.getIcao24()));
+                AircraftMetadata aircraftMetadata = aircraftMetadataRepository.findAircraftMetadataByIcao24(aircraftPosition.getIcao24());
+                aircraftPosition.setTailNumber(aircraftMetadata.getRegistration());
                 AircraftFlight aircraftFlight = aircraftFlightRepository.findAircraftFlightByIcao24AndFirstSeenLessThanEqualAndLastSeenGreaterThanEqual(aircraftPosition.getIcao24(), aircraftPosition.getTimePosition(), aircraftPosition.getTimePosition());
-                AirportMetadata airportMetadata = airportMetadataRepository.findAirportMetadataByGpsCode(aircraftFlight.getEstArrivalAirport()).get(0);
-                aircraftPosition.setAirport(airportMetadata.getName());
-                aircraftPosition.setAirportRegion(airportMetadata.getIsoRegion());
+
+                if (aircraftFlight != null && aircraftFlight.getEstArrivalAirport() != null) {
+                    List<AirportMetadata> airportMetadataList = airportMetadataRepository.findAirportMetadataByGpsCode(aircraftFlight.getEstArrivalAirport());
+                    if (!airportMetadataList.isEmpty()) {
+                        AirportMetadata airportMetadata = airportMetadataList.get(0);
+                        aircraftPosition.setAirport(airportMetadata.getName());
+                        aircraftPosition.setAirportRegion(airportMetadata.getIsoRegion());
+                    }
+                }
             };
 
             executor.execute(runnable);

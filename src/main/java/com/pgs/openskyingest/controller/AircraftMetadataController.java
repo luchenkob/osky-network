@@ -7,6 +7,8 @@ import com.pgs.openskyingest.response.ResponseGeneric;
 import com.pgs.openskyingest.service.ConfigManagmentService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,13 +31,15 @@ public class AircraftMetadataController {
     private OpenSkyIntegrationService openSkyIntegrationService;
 
     @RequestMapping(value = "/aircraft/metadata/all", method = RequestMethod.GET)
-    public List<AircraftMetadata> getAllAircraft(@RequestParam(value = "tailNumber", defaultValue = "") String tailNumber) {
+    public List<AircraftMetadata> getAllAircraft(@RequestParam(value = "tailNumber", defaultValue = "") String tailNumber,
+                                                 @RequestParam(value = "page") int page,
+                                                 @RequestParam(value = "size") int size) {
         tailNumber = tailNumber.toUpperCase();
-        if (StringUtils.isEmpty(tailNumber)) {
-            return configManagmentService.retrieveAllAircraft();
-        } else {
-            return configManagmentService.retrieveAircraftMetadataByRegistration(tailNumber);
+        if (tailNumber.length() >= 3) {
+            return configManagmentService.retrieveAllAircraft(page, size);
         }
+
+        return new ArrayList<>();
     }
 
     @RequestMapping(value = "/aircraft/metadata", method = RequestMethod.POST)
@@ -56,15 +60,14 @@ public class AircraftMetadataController {
     }
 
     @RequestMapping(value = "/aircraft/metadata/tailNumbers", method = RequestMethod.GET)
-    public List<String> getAllAircraftTailNumber() {
+    public List<String> getAllAircraftTailNumber(@RequestParam(value = "q", defaultValue = "") String query,
+                                                 @RequestParam(value = "page") int page,
+                                                 @RequestParam(value = "size") int size) {
         List<String> ret = new ArrayList<>();
-        List<String> jsonRets = configManagmentService.retrieveAllAircraftTailNumber();
-        ObjectMapper objectMapper = new ObjectMapper();
-        for (String json : jsonRets) {
+        List<AircraftMetadata> aircraftMetadataList = configManagmentService.retrieveAircraftMetadataByRegistration(query, page, size);
+        for (AircraftMetadata aircraftMetadata : aircraftMetadataList) {
             try {
-                String tailNumber = objectMapper.readTree(json).get("registration").textValue();
-                String icao24 = objectMapper.readTree(json).get("icao24").textValue();
-                ret.add(tailNumber + "(" + icao24 + ")");
+                ret.add(aircraftMetadata.getRegistration() + "(" + aircraftMetadata.getIcao24() + ")");
             } catch (Exception e) {
                 // do nothing
             }

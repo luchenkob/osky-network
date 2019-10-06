@@ -9,6 +9,9 @@ import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -73,18 +76,23 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
     }
 
     @Override
-    public List<AircraftMetadata> retrieveAircraftMetadataByRegistration(String registration) {
-        return aircraftMetadataRepository.findAircraftMetadataByRegistrationContains(registration);
+    public List<AircraftMetadata> retrieveAircraftMetadataByRegistration(String registration, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return aircraftMetadataRepository.findAircraftMetadataByRegistrationContains(registration, pageable);
     }
 
     @Override
-    public List<AircraftMetadata> retrieveAllAircraft() {
-        return aircraftMetadataRepository.findAll();
+    public List<AircraftMetadata> retrieveAllAircraft(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<AircraftMetadata> aircraftMetadataPage = aircraftMetadataRepository.findAll(pageable);
+
+        return aircraftMetadataPage.getContent();
     }
 
     @Override
-    public List<String> retrieveAllAircraftTailNumber() {
-        return aircraftMetadataRepository.findAllAircraftTailNumber();
+    public List<String> retrieveAllAircraftTailNumber(String query, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return aircraftMetadataRepository.findAllAircraftTailNumber(pageable);
     }
 
     @Override

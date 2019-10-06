@@ -2,6 +2,7 @@ package com.pgs.openskyingest.repository;
 
 import com.pgs.openskyingest.model.AircraftPosition;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -10,6 +11,9 @@ import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
 
 import java.util.List;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.skip;
 
 public class AircraftPositionAggregationRepositoryImpl implements AircraftPositionAggregationRepository {
 
@@ -21,7 +25,7 @@ public class AircraftPositionAggregationRepositoryImpl implements AircraftPositi
     }
 
     @Override
-    public List<AircraftPosition> findLastestPositionOfAllAircraft() {
+    public List<AircraftPosition> findLastestPositionOfAllAircraft(Pageable pageable) {
 
         SortOperation sortOperation = Aggregation.sort(new Sort(Sort.Direction.DESC, "timePosition"));
 
@@ -34,7 +38,14 @@ public class AircraftPositionAggregationRepositoryImpl implements AircraftPositi
                 .first("trueTrack").as("trueTrack")
                 .first("onGround").as("onGround");
 
-        Aggregation aggregation = Aggregation.newAggregation(sortOperation, groupOperation);
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                sortOperation
+                , groupOperation
+                , skip(pageable.getPageNumber() * pageable.getPageSize() * 1L)
+                , limit(pageable.getPageSize())
+                )
+                .withOptions(Aggregation.newAggregationOptions().allowDiskUse(true).build());
 
         AggregationResults<AircraftPosition> result = mongoTemplate.aggregate(aggregation, "aircraftPosition", AircraftPosition.class);
         return result.getMappedResults();

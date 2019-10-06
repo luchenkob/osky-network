@@ -2,6 +2,7 @@ package com.pgs.openskyingest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgs.openskyingest.model.AircraftFlight;
+import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftPosition;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
 import com.pgs.openskyingest.repository.AircraftMetadataRepository;
@@ -15,6 +16,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.awt.print.Pageable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,8 +45,7 @@ public class ScheduledTasks {
     @Async
     @Scheduled(fixedRate = 12 * 60 * 60 * 1000) // 12hrs
     public void updateFlightsOfWatchingAircrafts() {
-        List<String> jsonRets = aircraftMetadataRepository.findAllAircraftTailNumber();
-        ObjectMapper objectMapper = new ObjectMapper();
+        List<AircraftMetadata> aircraftMetadataList = aircraftMetadataRepository.findAll();
 
         // identify latest flights
         Long end = Instant.now().getEpochSecond();
@@ -54,10 +55,10 @@ public class ScheduledTasks {
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        for (String json : jsonRets) {
+        for (AircraftMetadata aircraftMetadata : aircraftMetadataList) {
             executor.execute(() -> {
                 try {
-                    String icao24 = objectMapper.readTree(json).get("icao24").textValue();
+                    String icao24 = aircraftMetadata.getIcao24();
 
                     List<AircraftFlight> flights = openSkyIntegrationService.getFlightsOfAircraft(icao24, begin, end);
                     logger.info("For icao24 {} opensky return {} flights", icao24, flights.size());

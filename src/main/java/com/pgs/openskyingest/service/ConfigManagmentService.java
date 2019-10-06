@@ -19,11 +19,11 @@ public interface ConfigManagmentService {
 
     AircraftMetadata retrieveAircraftMetadataByIcao24(String icao24);
 
-    List<AircraftMetadata> retrieveAircraftMetadataByRegistration(String registration);
+    List<AircraftMetadata> retrieveAircraftMetadataByRegistration(String registration, int page, int size);
 
-    List<AircraftMetadata> retrieveAllAircraft();
+    List<AircraftMetadata> retrieveAllAircraft(int page, int size);
 
-    List<String> retrieveAllAircraftTailNumber();
+    List<String> retrieveAllAircraftTailNumber(String query, int page, int size);
 
     Long deleteAircraft(String icao24);
 }

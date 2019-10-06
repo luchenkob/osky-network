@@ -10,7 +10,7 @@ public interface AircraftPositionService {
 
     List<AircraftPosition> retrieveCurrentPositionOfAllAircraft();
 
-    List<AircraftPosition> retrieveLatestPositionOfAllAircraft();
+    List<AircraftPosition> retrieveLatestPositionOfAllAircraft(int page, int size);
 
     /**
      * This method will do:
