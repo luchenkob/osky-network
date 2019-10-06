@@ -48,7 +48,7 @@ public class ScheduledTasks {
 
         // identify latest flights
         Long end = Instant.now().getEpochSecond();
-        Long begin = end - 30*24*60*60;
+        Long begin = end - 30*24*60*60;  // TODO: after system is stable, we should change 30 to 2 days
 
         logger.info("Trigger getting and updating flights between {} and {}", begin, end);
 
@@ -62,14 +62,16 @@ public class ScheduledTasks {
                     List<AircraftFlight> flights = openSkyIntegrationService.getFlightsOfAircraft(icao24, begin, end);
                     logger.info("For icao24 {} opensky return {} flights", icao24, flights.size());
 
-                    List<AircraftFlight> dbFlights = aircraftFlightRepository.findAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, begin, end);
-                    logger.info("For icao24 {} in database return {} flights ", icao24, dbFlights.size());
+                    if (!flights.isEmpty()) {
+                        List<AircraftFlight> dbFlights = aircraftFlightRepository.findAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, begin, end);
+                        logger.info("For icao24 {} in database return {} flights ", icao24, dbFlights.size());
 
-                    List<AircraftFlight> newFlights = flights.stream().filter(flight -> !dbFlights.contains(flight)).collect(Collectors.toList());
+                        List<AircraftFlight> newFlights = flights.stream().filter(flight -> !dbFlights.contains(flight)).collect(Collectors.toList());
 
-                    if (!newFlights.isEmpty()) {
-                        logger.info("For icao24 {}, found and saved {} new flights", icao24, newFlights.size());
-                        aircraftFlightRepository.saveAll(newFlights);
+                        if (!newFlights.isEmpty()) {
+                            logger.info("For icao24 {}, found and saved {} new flights", icao24, newFlights.size());
+                            aircraftFlightRepository.saveAll(newFlights);
+                        }
                     }
                 } catch (Exception e) {
                     // do nothing
