@@ -5,6 +5,7 @@ import com.pgs.openskyingest.model.AircraftOpenskyInfo;
 import com.pgs.openskyingest.response.ResponseGeneric;
 import com.pgs.openskyingest.service.AircraftMetadataService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,11 +32,11 @@ public class AircraftMetadataController {
                                                  @RequestParam(value = "page") int page,
                                                  @RequestParam(value = "size") int size) {
         tailNumber = tailNumber.toUpperCase();
-        if (tailNumber.length() >= 3) {
+        if (tailNumber.length() < 3) {
             return aircraftMetadataService.retrieveAllAircraft(page, size);
+        } else {
+            return aircraftMetadataService.retrieveAircraftMetadataByRegistration(tailNumber, page, size);
         }
-
-        return new ArrayList<>();
     }
 
     @RequestMapping(value = "/aircraft/metadata", method = RequestMethod.POST)
