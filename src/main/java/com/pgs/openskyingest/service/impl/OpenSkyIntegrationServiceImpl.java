@@ -42,7 +42,7 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
 
         try (CloseableHttpResponse response = client.execute(httpGet)) {
             String json = EntityUtils.toString(response.getEntity());
-            logger.info("getIcao24FromTailNumber json response {}", json);
+            logger.debug("getIcao24FromTailNumber json response {}", json);
 
             JsonNode root = objectMapper.readTree(json);
             icao24s = objectMapper.readValue(root.path("content").toString(), List.class);
@@ -64,7 +64,7 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
         try (CloseableHttpResponse response = client.execute(httpGet)) {
             String json = EntityUtils.toString(response.getEntity());
             AircraftMetadata aircraftMetadata = objectMapper.readValue(json, AircraftMetadata.class);
-            logger.info("aircraft icao24 {} has metadata: {}", icao24, aircraftMetadata.toString());
+            logger.debug("aircraft icao24 {} has metadata: {}", icao24, aircraftMetadata.toString());
 
             response.close();
             client.close();
@@ -114,7 +114,7 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
 
         try (CloseableHttpResponse response = client.execute(httpGet)) {
             String json = EntityUtils.toString(response.getEntity());
-            logger.info("Returned flights of aircraft {} between {} and {} is: {}", icao24, begin, end, json);
+            logger.debug("Returned flights of aircraft {} between {} and {} is: {}", icao24, begin, end, json);
             return objectMapper.readValue(json, new TypeReference<List<AircraftFlight>>(){});
 
         } catch (Exception e) {
@@ -159,7 +159,7 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
     private List<AircraftPosition> executeGetAndExtractAircraftPosition(CloseableHttpClient client, HttpGet httpGet) {
         try (CloseableHttpResponse response = client.execute(httpGet)) {
             String json = EntityUtils.toString(response.getEntity());
-            logger.info("Returned state vectors of aircraft at {}: {}", httpGet.toString(), json);
+            logger.debug("Returned state vectors of aircraft at {}: {}", httpGet.toString(), json);
             JsonNode states = objectMapper.readTree(json).path("states");
             List<AircraftPosition> aircraftPositions = new ArrayList<>();
 
@@ -177,7 +177,7 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
                     aircraftPosition.setTrueTrack(state.path(10).asDouble());
 
 
-                    logger.info("Aircraft position obtain from state array: {}", aircraftPosition.toString());
+                    logger.debug("Aircraft position obtain from state array: {}", aircraftPosition.toString());
                     aircraftPositions.add(aircraftPosition);
                 }
             }
