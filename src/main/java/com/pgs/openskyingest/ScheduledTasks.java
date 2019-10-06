@@ -66,15 +66,24 @@ public class ScheduledTasks {
                         List<AircraftFlight> dbFlights = aircraftFlightRepository.findAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, begin, end);
                         logger.info("For icao24 {} in database return {} flights ", icao24, dbFlights.size());
 
-                        List<AircraftFlight> newFlights = flights.stream().filter(flight -> !dbFlights.contains(flight)).collect(Collectors.toList());
+                        // for optimization, below code will run
+                        // when opensky return number of flights > number of flights in our databsae
+                        if (flights.size() > dbFlights.size()) {
+                            List<AircraftFlight> newFlights = flights.stream().filter(flight -> !dbFlights.contains(flight)).collect(Collectors.toList());
 
-                        if (!newFlights.isEmpty()) {
-                            logger.info("For icao24 {}, found and saved {} new flights", icao24, newFlights.size());
-                            aircraftFlightRepository.saveAll(newFlights);
+                            if (!newFlights.isEmpty()) {
+                                logger.info("For icao24 {}, found and saved {} new flights", icao24, newFlights.size());
+                                aircraftFlightRepository.saveAll(newFlights);
+                            }
                         }
                     }
                 } catch (Exception e) {
-                    // do nothing
+                    // most of exceptions will be thrown when opensky return 503 service temporay unavailable
+                    try  {
+                        Thread.sleep(2 * 60 * 1000L);
+                    } catch (InterruptedException e1){
+                        // Do nothing..
+                    }
                 }
             });
         }
