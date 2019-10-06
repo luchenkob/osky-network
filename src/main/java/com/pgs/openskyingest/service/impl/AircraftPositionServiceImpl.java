@@ -65,7 +65,7 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
         List<AircraftPosition> currentAircraftPositionList = openSkyIntegrationService.getAllCurrentStateVector();
         List<AircraftPosition> returnList = Collections.synchronizedList( new ArrayList() );
 
-        ExecutorService executor = Executors.newFixedThreadPool(15);
+        ExecutorService executor = Executors.newFixedThreadPool(6);
         for (AircraftPosition position : currentAircraftPositionList) {
             executor.execute(() -> {
                 if (aircraftMetadataRepository.existsByIcao24(position.getIcao24())) {
