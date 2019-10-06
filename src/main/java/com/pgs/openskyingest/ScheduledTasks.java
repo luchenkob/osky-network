@@ -43,7 +43,7 @@ public class ScheduledTasks {
     private OpenSkyIntegrationService openSkyIntegrationService;
 
     @Async
-    @Scheduled(fixedRate = 12 * 60 * 60 * 1000) // 12hrs
+    @Scheduled(fixedRate = 36 * 60 * 60 * 1000) // 36hrs
     public void updateFlightsOfWatchingAircrafts() {
         List<AircraftMetadata> aircraftMetadataList = aircraftMetadataRepository.findAll();
 
