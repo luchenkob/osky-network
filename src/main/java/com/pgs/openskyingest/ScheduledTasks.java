@@ -52,7 +52,7 @@ public class ScheduledTasks {
 
         logger.info("Trigger getting and updating flights between {} and {}", begin, end);
 
-        ExecutorService executor = Executors.newFixedThreadPool(2);
+        ExecutorService executor = Executors.newFixedThreadPool(3);
 
         for (String json : jsonRets) {
             executor.execute(() -> {
