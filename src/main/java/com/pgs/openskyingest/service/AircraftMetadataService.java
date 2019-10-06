@@ -23,8 +23,6 @@ public interface AircraftMetadataService {
 
     List<AircraftMetadata> retrieveAllAircraft(int page, int size);
 
-    List<String> retrieveAllAircraftTailNumber(String query, int page, int size);
-
     Long deleteAircraft(String icao24);
 
     boolean isIcao24Exist(String icao24);

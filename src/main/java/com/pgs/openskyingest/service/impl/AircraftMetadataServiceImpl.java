@@ -77,23 +77,19 @@ public class AircraftMetadataServiceImpl implements AircraftMetadataService {
     }
 
     @Override
+    @Cacheable("retrieveAircraftMetadataByRegistration")
     public List<AircraftMetadata> retrieveAircraftMetadataByRegistration(String registration, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return aircraftMetadataRepository.findAircraftMetadataByRegistrationContains(registration, pageable);
     }
 
     @Override
+    @Cacheable("retrieveAllAircraft")
     public List<AircraftMetadata> retrieveAllAircraft(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<AircraftMetadata> aircraftMetadataPage = aircraftMetadataRepository.findAll(pageable);
 
         return aircraftMetadataPage.getContent();
-    }
-
-    @Override
-    public List<String> retrieveAllAircraftTailNumber(String query, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return aircraftMetadataRepository.findAllAircraftTailNumber(pageable);
     }
 
     @Override
