@@ -77,7 +77,6 @@ public class AircraftMetadataServiceImpl implements AircraftMetadataService {
     }
 
     @Override
-    @Cacheable("retrieveAircraftMetadataByRegistration")
     public List<AircraftMetadata> retrieveAircraftMetadataByRegistration(String registration, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return aircraftMetadataRepository.findAircraftMetadataByRegistrationContains(registration, pageable);
