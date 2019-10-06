@@ -1,22 +1,22 @@
 package com.pgs.openskyingest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgs.openskyingest.model.AircraftFlight;
 import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftPosition;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
 import com.pgs.openskyingest.repository.AircraftMetadataRepository;
 import com.pgs.openskyingest.repository.AircraftPositionRepository;
+import com.pgs.openskyingest.service.AircraftMetadataService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.awt.print.Pageable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Component
 @EnableAsync
+@EnableCaching
 public class ScheduledTasks {
     private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
 
@@ -41,6 +42,9 @@ public class ScheduledTasks {
 
     @Autowired
     private OpenSkyIntegrationService openSkyIntegrationService;
+
+    @Autowired
+    private AircraftMetadataService aircraftMetadataService;
 
     @Async
     @Scheduled(fixedRate = 36 * 60 * 60 * 1000) // 36hrs
@@ -108,7 +112,7 @@ public class ScheduledTasks {
         ExecutorService executor = Executors.newFixedThreadPool(6);
         for (AircraftPosition position : livingPositionOfAircrafts) {
             executor.execute(() -> {
-                boolean icao24Existed = aircraftMetadataRepository.existsByIcao24(position.getIcao24());
+                boolean icao24Existed = aircraftMetadataService.isIcao24Exist(position.getIcao24());
                 if (icao24Existed) {
                     // update list
                     willInsertToMongo.add(position);
@@ -128,5 +132,4 @@ public class ScheduledTasks {
         }
     }
 
-    // TODO: we also need fill in missing fields of aircraft metadata
 }

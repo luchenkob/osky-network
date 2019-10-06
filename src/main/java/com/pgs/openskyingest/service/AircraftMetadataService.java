@@ -4,7 +4,7 @@ import com.pgs.openskyingest.model.AircraftMetadata;
 
 import java.util.List;
 
-public interface ConfigManagmentService {
+public interface AircraftMetadataService {
     /**
      * Insert aircaft need to be watching position real-time
      * This function will do:
@@ -26,4 +26,6 @@ public interface ConfigManagmentService {
     List<String> retrieveAllAircraftTailNumber(String query, int page, int size);
 
     Long deleteAircraft(String icao24);
+
+    boolean isIcao24Exist(String icao24);
 }

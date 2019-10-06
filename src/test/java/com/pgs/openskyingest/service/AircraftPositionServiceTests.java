@@ -18,7 +18,7 @@
 //    private AircraftPositionService aircraftPositionService;
 //
 //    @Autowired
-//    private ConfigManagmentService configManagmentService;
+//    private AircraftMetadataService configManagmentService;
 //
 //    @Autowired
 //    private AircraftMetadataRepository aircraftMetadataRepository;

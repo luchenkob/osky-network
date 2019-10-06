@@ -13,7 +13,7 @@
 //public class ConfigManagementServiceTests {
 //
 //    @Autowired
-//    private ConfigManagmentService configManagmentService;
+//    private AircraftMetadataService configManagmentService;
 //
 //    @Autowired
 //    private AircraftMetadataRepository aircraftMetadataRepository;

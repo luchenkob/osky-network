@@ -1,15 +1,11 @@
 package com.pgs.openskyingest.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftOpenskyInfo;
 import com.pgs.openskyingest.response.ResponseGeneric;
-import com.pgs.openskyingest.service.ConfigManagmentService;
+import com.pgs.openskyingest.service.AircraftMetadataService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +21,7 @@ import java.util.List;
 public class AircraftMetadataController {
 
     @Autowired
-    private ConfigManagmentService configManagmentService;
+    private AircraftMetadataService aircraftMetadataService;
 
     @Autowired
     private OpenSkyIntegrationService openSkyIntegrationService;
@@ -36,7 +32,7 @@ public class AircraftMetadataController {
                                                  @RequestParam(value = "size") int size) {
         tailNumber = tailNumber.toUpperCase();
         if (tailNumber.length() >= 3) {
-            return configManagmentService.retrieveAllAircraft(page, size);
+            return aircraftMetadataService.retrieveAllAircraft(page, size);
         }
 
         return new ArrayList<>();
@@ -45,9 +41,9 @@ public class AircraftMetadataController {
     @RequestMapping(value = "/aircraft/metadata", method = RequestMethod.POST)
     public ResponseGeneric addAircraftForWatching(@RequestBody String icao24) {
         icao24 = icao24.toLowerCase();
-        int result = configManagmentService.insertWatchingAircaftConfig(icao24);
+        int result = aircraftMetadataService.insertWatchingAircaftConfig(icao24);
         if (result > 0) {
-            return new ResponseGeneric(false, "Add aircraft successfully", configManagmentService.retrieveAircraftMetadataByIcao24(icao24));
+            return new ResponseGeneric(false, "Add aircraft successfully", aircraftMetadataService.retrieveAircraftMetadataByIcao24(icao24));
         }
         return new ResponseGeneric(true, "The aircraft has already existed in our database", null);
     }
@@ -64,7 +60,7 @@ public class AircraftMetadataController {
                                                  @RequestParam(value = "page") int page,
                                                  @RequestParam(value = "size") int size) {
         List<String> ret = new ArrayList<>();
-        List<AircraftMetadata> aircraftMetadataList = configManagmentService.retrieveAircraftMetadataByRegistration(query, page, size);
+        List<AircraftMetadata> aircraftMetadataList = aircraftMetadataService.retrieveAircraftMetadataByRegistration(query, page, size);
         for (AircraftMetadata aircraftMetadata : aircraftMetadataList) {
             try {
                 ret.add(aircraftMetadata.getRegistration() + "(" + aircraftMetadata.getIcao24() + ")");
@@ -78,7 +74,7 @@ public class AircraftMetadataController {
 
     @RequestMapping(value = "/aircraft/metadata", method = RequestMethod.DELETE)
     public Long deleteTrackingAircraft(@RequestBody String icao24) {
-        return configManagmentService.deleteAircraft(icao24);
+        return aircraftMetadataService.deleteAircraft(icao24);
     }
 
 }

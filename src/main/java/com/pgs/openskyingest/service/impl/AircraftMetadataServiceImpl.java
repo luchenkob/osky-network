@@ -4,11 +4,12 @@ import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
 import com.pgs.openskyingest.repository.AircraftMetadataRepository;
 import com.pgs.openskyingest.repository.AircraftPositionRepository;
-import com.pgs.openskyingest.service.ConfigManagmentService;
+import com.pgs.openskyingest.service.AircraftMetadataService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +21,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Service
-public class ConfigManagementServiceImpl implements ConfigManagmentService {
+public class AircraftMetadataServiceImpl implements AircraftMetadataService {
 
-    private final static Logger logger = LoggerFactory.getLogger(ConfigManagementServiceImpl.class);
+    private final static Logger logger = LoggerFactory.getLogger(AircraftMetadataServiceImpl.class);
 
     @Autowired
     private OpenSkyIntegrationService openSkyIntegrationService;
@@ -101,6 +102,12 @@ public class ConfigManagementServiceImpl implements ConfigManagmentService {
                 + aircraftFlightRepository.deleteAircraftFlightByIcao24(icao24)
                 + aircraftPositionRepository.deleteAircraftPositionByIcao24(icao24);
 
+    }
+
+    @Override
+    @Cacheable("isCao24Exist")
+    public boolean isIcao24Exist(String icao24) {
+        return aircraftMetadataRepository.existsByIcao24(icao24);
     }
 
 }

@@ -9,6 +9,7 @@ import com.pgs.openskyingest.repository.AircraftFlightRepository;
 import com.pgs.openskyingest.repository.AircraftMetadataRepository;
 import com.pgs.openskyingest.repository.AircraftPositionRepository;
 import com.pgs.openskyingest.repository.AirportMetadataRepository;
+import com.pgs.openskyingest.service.AircraftMetadataService;
 import com.pgs.openskyingest.service.AircraftPositionService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,9 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
     @Autowired
     private AirportMetadataRepository airportMetadataRepository;
 
+    @Autowired
+    private AircraftMetadataService aircraftMetadataService;
+
     @Override
     public List<AircraftPosition> retrieveAircraftPositionInTime(String tailNumberWithIcao24, Long fromTime, Long toTime) {
         Pattern pattern = Pattern.compile("(.*)\\((.*)\\)");
@@ -68,7 +72,7 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
         ExecutorService executor = Executors.newFixedThreadPool(6);
         for (AircraftPosition position : currentAircraftPositionList) {
             executor.execute(() -> {
-                if (aircraftMetadataRepository.existsByIcao24(position.getIcao24())) {
+                if (aircraftMetadataService.isIcao24Exist(position.getIcao24())) {
                     // update list
                     returnList.add(position);
                 }
@@ -114,7 +118,6 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
 
         return aircraftPositions;
     }
-
 
     // Since we will have ~300k aircrafts, we won't use this method any more.
     @Override
