@@ -9,6 +9,10 @@ import java.util.Map;
 public interface AircraftFlightService {
     List<AircraftFlight> retrieveAircraftFlightInTime(String tailNumber, Long fromTimestamp, Long toTimestamp);
 
+    List<AircraftFlight> retrieveAllFlightsDepartureAt(String gpsCode);
+
+    List<AircraftFlight> retrieveAllFlightsArriveTo(String gpsCode);
+
     Map<String, List<AircraftFlight>> retrieveAircraftFlightGroupByDate(String tailNumber, Long fromTimestamp, Long toTimestamp, String clientTz);
 
     Map<String, List<AircraftFlightCompare>> retrieveAircraftsFlightGroupByDate(String[] tailNumberWithIcao24s, Long from, Long to, String clientTz);
