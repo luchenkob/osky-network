@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -20,7 +19,6 @@ public class AircraftPosition {
 
     private Long timePosition;
 
-    @Transient
     private Long maxTimePosition;
 
     private Double latitude;
@@ -39,7 +37,6 @@ public class AircraftPosition {
     // Boolean value which indicates if the position was retrieved from a surface position report.
     private Boolean onGround;
 
-    @Transient
     private String tailNumber;
 
     // airport vs airportRegion used for latest position
