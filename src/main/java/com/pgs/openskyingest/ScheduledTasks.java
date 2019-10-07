@@ -3,10 +3,9 @@ package com.pgs.openskyingest;
 import com.pgs.openskyingest.model.AircraftFlight;
 import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftPosition;
-import com.pgs.openskyingest.repository.AircraftFlightRepository;
-import com.pgs.openskyingest.repository.AircraftMetadataRepository;
-import com.pgs.openskyingest.repository.AircraftPositionRepository;
+import com.pgs.openskyingest.service.AircraftFlightService;
 import com.pgs.openskyingest.service.AircraftMetadataService;
+import com.pgs.openskyingest.service.AircraftPositionService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +29,10 @@ public class ScheduledTasks {
     private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
 
     @Autowired
-    private AircraftPositionRepository aircraftPositionRepository;
+    private AircraftPositionService aircraftPositionService;
 
     @Autowired
-    private AircraftMetadataRepository aircraftMetadataRepository;
-
-    @Autowired
-    private AircraftFlightRepository aircraftFlightRepository;
+    private AircraftFlightService aircraftFlightService;
 
     @Autowired
     private OpenSkyIntegrationService openSkyIntegrationService;
@@ -47,7 +43,7 @@ public class ScheduledTasks {
     @Async
     @Scheduled(fixedRate = 36 * 60 * 60 * 1000) // 36hrs
     public void updateFlightsOfWatchingAircrafts() {
-        List<AircraftMetadata> aircraftMetadataList = aircraftMetadataRepository.findAll();
+        List<AircraftMetadata> aircraftMetadataList = aircraftMetadataService.retrieveAll();
 
         // identify latest flights
         Long end = Instant.now().getEpochSecond();
@@ -66,7 +62,7 @@ public class ScheduledTasks {
                     logger.info("For icao24 {} opensky return {} flights", icao24, flights.size());
 
                     if (!flights.isEmpty()) {
-                        List<AircraftFlight> dbFlights = aircraftFlightRepository.findAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, begin, end);
+                        List<AircraftFlight> dbFlights = aircraftFlightService.retrieveAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, begin, end);
                         logger.info("For icao24 {} in database return {} flights ", icao24, dbFlights.size());
 
                         // for optimization, below code will run
@@ -76,7 +72,7 @@ public class ScheduledTasks {
 
                             if (!newFlights.isEmpty()) {
                                 logger.info("For icao24 {}, found and saved {} new flights", icao24, newFlights.size());
-                                aircraftFlightRepository.saveAll(newFlights);
+                                aircraftFlightService.insertAll(newFlights);
                             }
                         }
                     }
@@ -124,7 +120,7 @@ public class ScheduledTasks {
 
         if (!willInsertToMongo.isEmpty()) {
             logger.info("saving {} aircrafts positions", willInsertToMongo.size());
-            aircraftPositionRepository.saveAll(willInsertToMongo);
+            aircraftPositionService.insertAll(willInsertToMongo);
         } else {
             logger.info("saving 0 aircrafts positions");
         }

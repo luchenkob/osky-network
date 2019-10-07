@@ -29,7 +29,7 @@ public class AirportMetadataController {
     public List<AirportMetadata> getAirportMetadata(@RequestParam(name = "gpsCode", defaultValue = "") String gpsCode,
                                                     @RequestParam(name = "q", defaultValue = "") String query) {
         if (!gpsCode.isEmpty()) {
-            return airportMetadataService.retrieveAirportMetadata(gpsCode.toUpperCase());
+            return airportMetadataService.retrieveAirportMetadataByGpsCode(gpsCode.toUpperCase());
         } else if (!query.isEmpty()) {
             return airportMetadataService.retrieveAirportMetadataByUserInput(query);
         } else {

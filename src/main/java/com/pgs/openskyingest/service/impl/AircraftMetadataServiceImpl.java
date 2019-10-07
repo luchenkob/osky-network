@@ -3,8 +3,9 @@ package com.pgs.openskyingest.service.impl;
 import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
 import com.pgs.openskyingest.repository.AircraftMetadataRepository;
-import com.pgs.openskyingest.repository.AircraftPositionRepository;
+import com.pgs.openskyingest.service.AircraftFlightService;
 import com.pgs.openskyingest.service.AircraftMetadataService;
+import com.pgs.openskyingest.service.AircraftPositionService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,16 +27,16 @@ public class AircraftMetadataServiceImpl implements AircraftMetadataService {
     private final static Logger logger = LoggerFactory.getLogger(AircraftMetadataServiceImpl.class);
 
     @Autowired
-    private OpenSkyIntegrationService openSkyIntegrationService;
-
-    @Autowired
     private AircraftMetadataRepository aircraftMetadataRepository;
 
     @Autowired
-    private AircraftPositionRepository aircraftPositionRepository;
+    private OpenSkyIntegrationService openSkyIntegrationService;
 
     @Autowired
-    private AircraftFlightRepository aircraftFlightRepository;
+    private AircraftPositionService aircraftPositionService;
+
+    @Autowired
+    private AircraftFlightService aircraftFlightService;
 
     @Override
     public int insertWatchingAircaftConfig(String... icao24s) {
@@ -93,10 +94,15 @@ public class AircraftMetadataServiceImpl implements AircraftMetadataService {
     }
 
     @Override
+    public List<AircraftMetadata> retrieveAll() {
+        return aircraftMetadataRepository.findAll();
+    }
+
+    @Override
     public Long deleteAircraft(String icao24) {
         return aircraftMetadataRepository.deleteAircraftMetadataByIcao24(icao24)
-                + aircraftFlightRepository.deleteAircraftFlightByIcao24(icao24)
-                + aircraftPositionRepository.deleteAircraftPositionByIcao24(icao24);
+                + aircraftFlightService.deleteAircraftFlightByIcao24(icao24)
+                + aircraftPositionService.deleteAircraftPositionByIcao24(icao24);
 
     }
 

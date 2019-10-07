@@ -12,5 +12,9 @@ public interface AircraftPositionService {
 
     List<AircraftPosition> retrieveLatestPositionOfAllAircraft(int page, int size);
 
+    Long deleteAircraftPositionByIcao24(String icao24);
+
     Long numberOfRecords();
+
+    List<AircraftPosition> insertAll(List<AircraftPosition> aircraftPositions);
 }

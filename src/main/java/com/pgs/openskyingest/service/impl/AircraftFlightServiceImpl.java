@@ -32,7 +32,6 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     @Autowired
     private AircraftFlightRepository aircraftFlightRepository;
 
-    // Wire to another services
     @Autowired
     private AirportMetadataService airportMetadataService;
 
@@ -70,6 +69,16 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     @Override
     public List<AircraftFlight> retrieveAllFlightsArriveTo(String gpsCode) {
         return aircraftFlightRepository.findAircraftFlightByEstArrivalAirport(gpsCode);
+    }
+
+    @Override
+    public List<AircraftFlight> retrieveAircraftFlightByIcao24EqualsAndFirstSeenBetween(String icao24, Long begin, Long end) {
+        return aircraftFlightRepository.findAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, begin, end);
+    }
+
+    @Override
+    public AircraftFlight retrieveAircraftFlightByIcao24AndFirstSeenLessThanEqualAndLastSeenGreaterThanEqual(String icao24, Long from, Long to) {
+        return aircraftFlightRepository.findAircraftFlightByIcao24AndFirstSeenLessThanEqualAndLastSeenGreaterThanEqual(icao24, from, to);
     }
 
     @Override
@@ -112,7 +121,7 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
 
                 aircraftFlightCompare.setDepartureAirport(flights.stream().map(f -> {
                     String gpsCode = f.getEstDepartureAirport();
-                    List<AirportMetadata> airportMetadatas = airportMetadataService.retrieveAirportMetadata(gpsCode);
+                    List<AirportMetadata> airportMetadatas = airportMetadataService.retrieveAirportMetadataByGpsCode(gpsCode);
                     return airportMetadatas.isEmpty() ? gpsCode : airportMetadatas.get(0).getName();
                 }).collect(Collectors.joining("###")));
 
@@ -120,7 +129,7 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
 
                 aircraftFlightCompare.setArrivalAirport(flights.stream().map(f -> {
                     String gpsCode = f.getEstArrivalAirport();
-                    List<AirportMetadata> airportMetadatas = airportMetadataService.retrieveAirportMetadata(gpsCode);
+                    List<AirportMetadata> airportMetadatas = airportMetadataService.retrieveAirportMetadataByGpsCode(gpsCode);
                     return airportMetadatas.isEmpty() ? gpsCode : airportMetadatas.get(0).getName();
                 }).collect(Collectors.joining("###")));
 
@@ -158,8 +167,18 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     }
 
     @Override
+    public Long deleteAircraftFlightByIcao24(String icao24) {
+        return aircraftFlightRepository.deleteAircraftFlightByIcao24(icao24);
+    }
+
+    @Override
     public Long numberOfRecords() {
         return aircraftFlightRepository.count();
+    }
+
+    @Override
+    public List<AircraftFlight> insertAll(List<AircraftFlight> aircraftFlights) {
+        return aircraftFlightRepository.saveAll(aircraftFlights);
     }
 
     private String getAiportName(String gpsCode) {

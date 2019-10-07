@@ -6,8 +6,6 @@ import java.util.List;
 
 public interface AirportMetadataService {
 
-    List<AirportMetadata> retrieveAirportMetadata(String gpsCode);
-
     List<AirportMetadata> retrieveAirportMetadataByUserInput(String query);
 
     List<AirportMetadata> retrieveAirportMetadataByGpsCode(String gpsCode);

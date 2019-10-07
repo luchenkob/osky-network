@@ -7,7 +7,6 @@ import com.pgs.openskyingest.model.AircraftFlight;
 import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftOpenskyInfo;
 import com.pgs.openskyingest.model.AircraftPosition;
-import com.pgs.openskyingest.repository.AircraftMetadataRepository;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -16,7 +15,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,9 +28,6 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
     private final Logger logger = LoggerFactory.getLogger(OpenSkyIntegrationServiceImpl.class);
 
     private ObjectMapper objectMapper = new ObjectMapper();
-
-    @Autowired
-    private AircraftMetadataRepository aircraftMetadataRepository;
 
     @Override
     public List<AircraftOpenskyInfo> getIcao24FromTailNumber(String tailNumber) {

@@ -4,19 +4,17 @@ import com.pgs.openskyingest.model.AircraftFlight;
 import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftPosition;
 import com.pgs.openskyingest.model.AirportMetadata;
-import com.pgs.openskyingest.repository.AircraftFlightRepository;
-import com.pgs.openskyingest.repository.AircraftMetadataRepository;
 import com.pgs.openskyingest.repository.AircraftPositionRepository;
-import com.pgs.openskyingest.repository.AirportMetadataRepository;
+import com.pgs.openskyingest.service.AircraftFlightService;
 import com.pgs.openskyingest.service.AircraftMetadataService;
 import com.pgs.openskyingest.service.AircraftPositionService;
+import com.pgs.openskyingest.service.AirportMetadataService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,28 +22,25 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class AircraftPositionServiceImpl implements AircraftPositionService {
 
     @Autowired
-    private AircraftMetadataRepository aircraftMetadataRepository;
+    private AircraftPositionRepository aircraftPositionRepository;
 
     @Autowired
     private AircraftMetadataService aircraftMetadataService;
 
     @Autowired
-    private AircraftPositionRepository aircraftPositionRepository;
+    private AircraftFlightService aircraftFlightService;
 
     @Autowired
-    private AircraftFlightRepository aircraftFlightRepository;
+    private AirportMetadataService airportMetadataService;
 
     @Autowired
     private OpenSkyIntegrationService openSkyIntegrationService;
 
-    @Autowired
-    private AirportMetadataRepository airportMetadataRepository;
 
     @Override
     public List<AircraftPosition> retrieveAircraftPositionInTime(String tailNumberWithIcao24, Long fromTime, Long toTime) {
@@ -92,12 +87,12 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
         ExecutorService executor = Executors.newFixedThreadPool(size);
         for (AircraftPosition aircraftPosition : aircraftPositions) {
             Runnable runnable = () -> {
-                AircraftMetadata aircraftMetadata = aircraftMetadataRepository.findAircraftMetadataByIcao24(aircraftPosition.getIcao24());
+                AircraftMetadata aircraftMetadata = aircraftMetadataService.retrieveAircraftMetadataByIcao24(aircraftPosition.getIcao24());
                 aircraftPosition.setTailNumber(aircraftMetadata.getRegistration());
-                AircraftFlight aircraftFlight = aircraftFlightRepository.findAircraftFlightByIcao24AndFirstSeenLessThanEqualAndLastSeenGreaterThanEqual(aircraftPosition.getIcao24(), aircraftPosition.getTimePosition(), aircraftPosition.getTimePosition());
+                AircraftFlight aircraftFlight = aircraftFlightService.retrieveAircraftFlightByIcao24AndFirstSeenLessThanEqualAndLastSeenGreaterThanEqual(aircraftPosition.getIcao24(), aircraftPosition.getTimePosition(), aircraftPosition.getTimePosition());
 
                 if (aircraftFlight != null && aircraftFlight.getEstArrivalAirport() != null) {
-                    List<AirportMetadata> airportMetadataList = airportMetadataRepository.findAirportMetadataByGpsCode(aircraftFlight.getEstArrivalAirport());
+                    List<AirportMetadata> airportMetadataList = airportMetadataService.retrieveAirportMetadataByGpsCode(aircraftFlight.getEstArrivalAirport());
                     if (!airportMetadataList.isEmpty()) {
                         AirportMetadata airportMetadata = airportMetadataList.get(0);
                         aircraftPosition.setAirport(airportMetadata.getName());
@@ -117,8 +112,18 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
     }
 
     @Override
+    public Long deleteAircraftPositionByIcao24(String icao24) {
+        return aircraftPositionRepository.deleteAircraftPositionByIcao24(icao24);
+    }
+
+    @Override
     public Long numberOfRecords() {
         return aircraftPositionRepository.count();
+    }
+
+    @Override
+    public List<AircraftPosition> insertAll(List<AircraftPosition> aircraftPositions) {
+        return aircraftPositionRepository.saveAll(aircraftPositions);
     }
 
 }
