@@ -44,15 +44,7 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
 
     @Override
     public List<AircraftPosition> retrieveAircraftPositionInTime(String tailNumberWithIcao24, Long fromTime, Long toTime) {
-        Pattern pattern = Pattern.compile("(.*)\\((.*)\\)");
-        Matcher matcher = pattern.matcher(tailNumberWithIcao24);
-
-        String icao24 = "";
-
-        while (matcher.find()) {
-            icao24 = matcher.group(2).toLowerCase();
-        }
-
+        String icao24 = extractIcao24(tailNumberWithIcao24);
         return aircraftPositionRepository.findAircraftPositionsByIcao24EqualsAndTimePositionBetween(icao24, fromTime, toTime);
     }
 
@@ -112,6 +104,12 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
     }
 
     @Override
+    public List<AircraftPosition> retrieveLatestPositionOfAircraft(String tailNumberWithIcao24) {
+        String icao24 = extractIcao24(tailNumberWithIcao24);
+        return aircraftPositionRepository.findLatestPositionOfAircraft(icao24);
+    }
+
+    @Override
     public Long deleteAircraftPositionByIcao24(String icao24) {
         return aircraftPositionRepository.deleteAircraftPositionByIcao24(icao24);
     }
@@ -126,4 +124,16 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
         return aircraftPositionRepository.saveAll(aircraftPositions);
     }
 
+    private String extractIcao24(String tailNumberWithIcao24) {
+        Pattern pattern = Pattern.compile("(.*)\\((.*)\\)");
+        Matcher matcher = pattern.matcher(tailNumberWithIcao24);
+
+        String icao24 = "";
+
+        while (matcher.find()) {
+            icao24 = matcher.group(2).toLowerCase();
+        }
+
+        return icao24;
+    }
 }

@@ -30,7 +30,7 @@ public class AircraftPositionAggregationRepositoryImpl implements AircraftPositi
         SortOperation sortOperation = Aggregation.sort(new Sort(Sort.Direction.DESC, "timePosition"));
 
         GroupOperation groupOperation = Aggregation.group("icao24")
-                .max("timePosition").as("timePosition")
+                .max("timePosition").as("maxTimePosition")
                 .first("icao24").as("icao24")
                 .first("latitude").as("latitude")
                 .first("longitude").as("longitude")
@@ -45,6 +45,27 @@ public class AircraftPositionAggregationRepositoryImpl implements AircraftPositi
                 , skip(pageable.getPageNumber() * pageable.getPageSize() * 1L)
                 , limit(pageable.getPageSize())
                 )
+                .withOptions(Aggregation.newAggregationOptions().allowDiskUse(true).build());
+
+        AggregationResults<AircraftPosition> result = mongoTemplate.aggregate(aggregation, "aircraftPosition", AircraftPosition.class);
+        return result.getMappedResults();
+    }
+
+    @Override
+    public List<AircraftPosition> findLatestPositionOfAircraft(String icao24) {
+        SortOperation sortOperation = Aggregation.sort(new Sort(Sort.Direction.DESC, "timePosition"));
+
+        GroupOperation groupOperation = Aggregation.group(icao24)
+                .max("timePosition").as("maxTimePosition")
+                .first("icao24").as("icao24")
+                .first("latitude").as("latitude")
+                .first("longitude").as("longitude")
+                .first("baroAltitude").as("baroAltitude")
+                .first("trueTrack").as("trueTrack")
+                .first("onGround").as("onGround");
+
+
+        Aggregation aggregation = Aggregation.newAggregation(sortOperation, groupOperation)
                 .withOptions(Aggregation.newAggregationOptions().allowDiskUse(true).build());
 
         AggregationResults<AircraftPosition> result = mongoTemplate.aggregate(aggregation, "aircraftPosition", AircraftPosition.class);

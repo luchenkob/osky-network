@@ -35,5 +35,11 @@ public class AircraftPositionController {
     public List<AircraftPosition> getLatestPositionOfAllAircraft(@RequestParam(value = "page") int page,
                                                                  @RequestParam(value = "size") int size) {
         return aircraftPositionService.retrieveLatestPositionOfAllAircraft(page, size);
+
+    }
+
+    @RequestMapping(value = "/aircraft/position/latest/{tailNumberWithIcao24}", method = RequestMethod.GET)
+    public List<AircraftPosition> getLatestPositionOfAircraft(@PathVariable String tailNumberWithIcao24) {
+        return aircraftPositionService.retrieveLatestPositionOfAircraft(tailNumberWithIcao24);
     }
 }

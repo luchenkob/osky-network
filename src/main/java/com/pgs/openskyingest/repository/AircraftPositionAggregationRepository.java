@@ -9,4 +9,6 @@ public interface AircraftPositionAggregationRepository {
 
     List<AircraftPosition> findLastestPositionOfAllAircraft(Pageable pageable);
 
+    List<AircraftPosition> findLatestPositionOfAircraft(String icao24);
+
 }

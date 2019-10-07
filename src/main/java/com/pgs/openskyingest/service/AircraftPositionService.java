@@ -12,6 +12,8 @@ public interface AircraftPositionService {
 
     List<AircraftPosition> retrieveLatestPositionOfAllAircraft(int page, int size);
 
+    List<AircraftPosition> retrieveLatestPositionOfAircraft(String tailNumberWithIcao24);
+
     Long deleteAircraftPositionByIcao24(String icao24);
 
     Long numberOfRecords();
