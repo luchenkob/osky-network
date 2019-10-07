@@ -14,4 +14,6 @@ public interface AirportMetadataService {
     List<AircraftFlight> retrieveAllFlightsDepartureAt(String gpsCode);
 
     List<AircraftFlight> retrieveAllFlightsArriveTo(String gpsCode);
+
+    Long numberOfRecords();
 }

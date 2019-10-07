@@ -106,4 +106,9 @@ public class AircraftMetadataServiceImpl implements AircraftMetadataService {
         return aircraftMetadataRepository.existsByIcao24(icao24);
     }
 
+    @Override
+    public Long numberOfRecords() {
+        return aircraftMetadataRepository.count();
+    }
+
 }

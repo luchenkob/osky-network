@@ -26,4 +26,6 @@ public interface AircraftMetadataService {
     Long deleteAircraft(String icao24);
 
     boolean isIcao24Exist(String icao24);
+
+    Long numberOfRecords();
 }

@@ -38,4 +38,9 @@ public class AirportMetadataServiceImpl implements AirportMetadataService {
     public List<AircraftFlight> retrieveAllFlightsArriveTo(String gpsCode) {
         return aircraftFlightRepository.findAircraftFlightByEstArrivalAirport(gpsCode);
     }
+
+    @Override
+    public Long numberOfRecords() {
+        return aircraftFlightRepository.count();
+    }
 }

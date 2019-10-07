@@ -4,7 +4,6 @@ import com.pgs.openskyingest.model.AircraftFlight;
 import com.pgs.openskyingest.model.AircraftFlightCompare;
 import com.pgs.openskyingest.model.AirportMetadata;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
-import com.pgs.openskyingest.repository.AircraftMetadataRepository;
 import com.pgs.openskyingest.repository.AirportMetadataRepository;
 import com.pgs.openskyingest.service.AircraftFlightService;
 import org.slf4j.Logger;
@@ -29,9 +28,6 @@ import java.util.stream.Collectors;
 public class AircraftFlightServiceImpl implements AircraftFlightService {
 
     private final static Logger logger = LoggerFactory.getLogger(AircraftFlightServiceImpl.class);
-
-    @Autowired
-    private AircraftMetadataRepository aircraftMetadataRepository;
 
     @Autowired
     private AircraftFlightRepository aircraftFlightRepository;
@@ -148,6 +144,11 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
         return retData.entrySet().stream()
                 .sorted(Comparator.comparing(Map.Entry::getKey))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
+
+    @Override
+    public Long numberOfRecords() {
+        return aircraftFlightRepository.count();
     }
 
     private String getAiportName(String gpsCode) {
