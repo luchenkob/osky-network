@@ -74,14 +74,43 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
     public List<AircraftPosition> retrieveLatestPositionOfAllAircraft(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         List<AircraftPosition> aircraftPositions = aircraftPositionRepository.findLastestPositionOfAllAircraft(pageable);
+        fillTailNumber(aircraftPositions);
 
+        return aircraftPositions;
+    }
+
+    @Override
+    public List<AircraftPosition> retrieveLatestPositionOfAircraft(String tailNumberWithIcao24) {
+        String icao24 = extractIcao24(tailNumberWithIcao24);
+        List<AircraftPosition> aircraftPositions = aircraftPositionRepository.findLatestPositionOfAircraft(icao24);
+        fillTailNumber(aircraftPositions);
+
+        return aircraftPositions;
+    }
+
+    @Override
+    public Long deleteAircraftPositionByIcao24(String icao24) {
+        return aircraftPositionRepository.deleteAircraftPositionByIcao24(icao24);
+    }
+
+    @Override
+    public Long numberOfRecords() {
+        return aircraftPositionRepository.count();
+    }
+
+    @Override
+    public List<AircraftPosition> insertAll(List<AircraftPosition> aircraftPositions) {
+        return aircraftPositionRepository.saveAll(aircraftPositions);
+    }
+
+    private void fillTailNumber(List<AircraftPosition> aircraftPositions){
         // fill tail Number
-        ExecutorService executor = Executors.newFixedThreadPool(size);
+        ExecutorService executor = Executors.newFixedThreadPool(15);
         for (AircraftPosition aircraftPosition : aircraftPositions) {
             Runnable runnable = () -> {
                 AircraftMetadata aircraftMetadata = aircraftMetadataService.retrieveAircraftMetadataByIcao24(aircraftPosition.getIcao24());
                 aircraftPosition.setTailNumber(aircraftMetadata.getRegistration());
-                AircraftFlight aircraftFlight = aircraftFlightService.retrieveAircraftFlightByIcao24AndFirstSeenLessThanEqualAndLastSeenGreaterThanEqual(aircraftPosition.getIcao24(), aircraftPosition.getTimePosition(), aircraftPosition.getTimePosition());
+                AircraftFlight aircraftFlight = aircraftFlightService.retrieveAircraftFlightByIcao24AndFirstSeenLessThanEqualAndLastSeenGreaterThanEqual(aircraftPosition.getIcao24(), aircraftPosition.getMaxTimePosition(), aircraftPosition.getMaxTimePosition());
 
                 if (aircraftFlight != null && aircraftFlight.getEstArrivalAirport() != null) {
                     List<AirportMetadata> airportMetadataList = airportMetadataService.retrieveAirportMetadataByGpsCode(aircraftFlight.getEstArrivalAirport());
@@ -99,29 +128,6 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
         while (!executor.isTerminated()) {
             // waiting..
         }
-
-        return aircraftPositions;
-    }
-
-    @Override
-    public List<AircraftPosition> retrieveLatestPositionOfAircraft(String tailNumberWithIcao24) {
-        String icao24 = extractIcao24(tailNumberWithIcao24);
-        return aircraftPositionRepository.findLatestPositionOfAircraft(icao24);
-    }
-
-    @Override
-    public Long deleteAircraftPositionByIcao24(String icao24) {
-        return aircraftPositionRepository.deleteAircraftPositionByIcao24(icao24);
-    }
-
-    @Override
-    public Long numberOfRecords() {
-        return aircraftPositionRepository.count();
-    }
-
-    @Override
-    public List<AircraftPosition> insertAll(List<AircraftPosition> aircraftPositions) {
-        return aircraftPositionRepository.saveAll(aircraftPositions);
     }
 
     private String extractIcao24(String tailNumberWithIcao24) {
