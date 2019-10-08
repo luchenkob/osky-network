@@ -15,7 +15,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import java.util.List;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.skip;
 
 public class AircraftPositionAggregationRepositoryImpl implements AircraftPositionAggregationRepository {
@@ -29,11 +28,13 @@ public class AircraftPositionAggregationRepositoryImpl implements AircraftPositi
 
     @Override
     public List<AircraftPosition> findLastestPositionOfAllAircraft(Pageable pageable) {
+        MatchOperation matchOperation = Aggregation.match(new Criteria("lattitude").gt(0).and("longitude").gt(0));
         SortOperation sortOperation = Aggregation.sort(new Sort(Sort.Direction.DESC, "timePosition"));
         GroupOperation groupOperation = getGroupOperation();
 
         Aggregation aggregation = Aggregation.newAggregation(
-                sortOperation
+                matchOperation
+                , sortOperation
                 , groupOperation
                 , skip(pageable.getPageNumber() * pageable.getPageSize() * 1L)
                 , limit(pageable.getPageSize())
