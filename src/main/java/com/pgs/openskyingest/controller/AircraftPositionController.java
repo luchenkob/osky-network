@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = { "http://localhost:3000", "http://ui.opensky-ingest.xyz"})
@@ -32,9 +33,20 @@ public class AircraftPositionController {
     }
 
     @RequestMapping(value = "/aircraft/position/latest", method = RequestMethod.GET)
-    public List<AircraftPosition> getLatestPositionOfAllAircraft(@RequestParam(value = "page") int page,
-                                                                 @RequestParam(value = "size") int size) {
-        return aircraftPositionService.retrieveLatestPositionOfAllAircraft(page, size);
+    public List<AircraftPosition> getLatestPositionOfAllAircraft(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                                 @RequestParam(value = "size", defaultValue = "0") int size,
+                                                                 @RequestParam(value = "tailNumber", defaultValue = "") String tailNumbers) {
+        if (tailNumbers.isEmpty()) {
+            return aircraftPositionService.retrieveLatestPositionOfAllAircraft(page, size);
+        } else {
+            List<AircraftPosition> positions = new ArrayList<>();
+            String[] tailNumbersArray = tailNumbers.split(",");
+            for (String tailNumberWithIcao24 : tailNumbersArray) {
+                positions.addAll(aircraftPositionService.retrieveLatestPositionOfAircraft(tailNumberWithIcao24));
+            }
+
+            return positions;
+        }
 
     }
 
