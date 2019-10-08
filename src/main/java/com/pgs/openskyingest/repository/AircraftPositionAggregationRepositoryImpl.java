@@ -28,7 +28,7 @@ public class AircraftPositionAggregationRepositoryImpl implements AircraftPositi
 
     @Override
     public List<AircraftPosition> findLastestPositionOfAllAircraft(Pageable pageable) {
-        MatchOperation matchOperation = Aggregation.match(new Criteria("lattitude").gt(0).and("longitude").gt(0));
+        MatchOperation matchOperation = Aggregation.match(new Criteria("latitude").gt(0).and("longitude").gt(0));
         SortOperation sortOperation = Aggregation.sort(new Sort(Sort.Direction.DESC, "timePosition"));
         GroupOperation groupOperation = getGroupOperation();
 
