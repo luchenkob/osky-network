@@ -171,9 +171,12 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
                     aircraftPosition.setVerticalRate(state.path(9).asDouble());
                     aircraftPosition.setTrueTrack(state.path(10).asDouble());
 
-
                     logger.debug("Aircraft position obtain from state array: {}", aircraftPosition.toString());
-                    aircraftPositions.add(aircraftPosition);
+
+                    // only insert data has lat vs long
+                    if (aircraftPosition.getLatitude() > 0 && aircraftPosition.getLongitude() > 0) {
+                        aircraftPositions.add(aircraftPosition);
+                    }
                 }
             }
 
