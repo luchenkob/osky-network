@@ -99,6 +99,11 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
     }
 
     @Override
+    public Integer numberOfLatestPositionRecords() {
+        return aircraftPositionRepository.countLatestPositionOfAllAircraft();
+    }
+
+    @Override
     public List<AircraftPosition> insertAll(List<AircraftPosition> aircraftPositions) {
         return aircraftPositionRepository.saveAll(aircraftPositions);
     }

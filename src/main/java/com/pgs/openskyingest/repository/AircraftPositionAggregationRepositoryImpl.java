@@ -58,6 +58,23 @@ public class AircraftPositionAggregationRepositoryImpl implements AircraftPositi
         return result.getMappedResults();
     }
 
+    @Override
+    public Integer countLatestPositionOfAllAircraft() {
+        MatchOperation matchOperation = Aggregation.match(new Criteria("latitude").gt(0).and("longitude").gt(0));
+        SortOperation sortOperation = Aggregation.sort(new Sort(Sort.Direction.DESC, "timePosition"));
+        GroupOperation groupOperation = getGroupOperation();
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                matchOperation
+                , sortOperation
+                , groupOperation
+                ).withOptions(Aggregation.newAggregationOptions().allowDiskUse(true).build());
+
+        AggregationResults<AircraftPosition> result = mongoTemplate.aggregate(aggregation, "aircraftPosition", AircraftPosition.class);
+        return result.getMappedResults().size();
+
+    }
+
     private GroupOperation getGroupOperation() {
         return Aggregation.group("icao24")
                 .max("timePosition").as("maxTimePosition")

@@ -18,5 +18,7 @@ public interface AircraftPositionService {
 
     Long numberOfRecords();
 
+    Integer numberOfLatestPositionRecords();
+
     List<AircraftPosition> insertAll(List<AircraftPosition> aircraftPositions);
 }

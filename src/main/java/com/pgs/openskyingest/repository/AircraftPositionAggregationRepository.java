@@ -11,4 +11,6 @@ public interface AircraftPositionAggregationRepository {
 
     List<AircraftPosition> findLatestPositionOfAircraft(String icao24);
 
+    Integer countLatestPositionOfAllAircraft();
+
 }

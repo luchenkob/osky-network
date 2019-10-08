@@ -31,11 +31,12 @@ public class SummaryController {
     private AircraftFlightService aircraftFlightService;
 
     @RequestMapping(value = "/summary", method = RequestMethod.GET)
-    public Map<String, Long> getAirportMetadata() {
-        Map<String, Long> summary = new LinkedHashMap<>();
+    public Map<String, Object> getAirportMetadata() {
+        Map<String, Object> summary = new LinkedHashMap<>();
         summary.put("aircraftMetadata", aircraftMetadataService.numberOfRecords());
         summary.put("aircraftFlight", aircraftFlightService.numberOfRecords());
         summary.put("aircraftPosition", aircraftPositionService.numberOfRecords());
+        summary.put("aircraftLatestPosition", aircraftPositionService.numberOfLatestPositionRecords());
         summary.put("airport", airportMetadataService.numberOfRecords());
 
         return summary;
