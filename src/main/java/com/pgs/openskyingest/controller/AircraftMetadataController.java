@@ -2,9 +2,11 @@ package com.pgs.openskyingest.controller;
 
 import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftOpenskyInfo;
+import com.pgs.openskyingest.model.AircraftPosition;
 import com.pgs.openskyingest.response.ResponseGeneric;
 import com.pgs.openskyingest.service.AircraftMetadataService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
+import com.pgs.openskyingest.util.Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -28,14 +30,19 @@ public class AircraftMetadataController {
     private OpenSkyIntegrationService openSkyIntegrationService;
 
     @RequestMapping(value = "/aircraft/metadata/all", method = RequestMethod.GET)
-    public List<AircraftMetadata> getAllAircraft(@RequestParam(value = "tailNumber", defaultValue = "") String tailNumber,
-                                                 @RequestParam(value = "page") int page,
-                                                 @RequestParam(value = "size") int size) {
-        tailNumber = tailNumber.toUpperCase();
-        if (tailNumber.length() < 3) {
+    public List<AircraftMetadata> getAllAircraft(@RequestParam(value = "tailNumber", defaultValue = "") String tailNumbers,
+                                                 @RequestParam(value = "page", defaultValue = "0") int page,
+                                                 @RequestParam(value = "size", defaultValue = "10") int size) {
+        if (tailNumbers.isEmpty()) {
             return aircraftMetadataService.retrieveAllAircraft(page, size);
         } else {
-            return aircraftMetadataService.retrieveAircraftMetadataByRegistration(tailNumber, page, size);
+            List<AircraftMetadata> aircrafts = new ArrayList<>();
+            String[] tailNumbersArray = tailNumbers.split(",");
+            for (String tailNumberWithIcao24 : tailNumbersArray) {
+                String icao24 = Utils.extractIcao24(tailNumberWithIcao24);
+                aircrafts.add(aircraftMetadataService.retrieveAircraftMetadataByIcao24(icao24));
+            }
+            return aircrafts;
         }
     }
 

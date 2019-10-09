@@ -10,6 +10,7 @@ import com.pgs.openskyingest.service.AircraftMetadataService;
 import com.pgs.openskyingest.service.AircraftPositionService;
 import com.pgs.openskyingest.service.AirportMetadataService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
+import com.pgs.openskyingest.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class AircraftPositionServiceImpl implements AircraftPositionService {
@@ -44,7 +43,7 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
 
     @Override
     public List<AircraftPosition> retrieveAircraftPositionInTime(String tailNumberWithIcao24, Long fromTime, Long toTime) {
-        String icao24 = extractIcao24(tailNumberWithIcao24);
+        String icao24 = Utils.extractIcao24(tailNumberWithIcao24);
         return aircraftPositionRepository.findAircraftPositionsByIcao24EqualsAndTimePositionBetween(icao24, fromTime, toTime);
     }
 
@@ -81,7 +80,7 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
 
     @Override
     public List<AircraftPosition> retrieveLatestPositionOfAircraft(String tailNumberWithIcao24) {
-        String icao24 = extractIcao24(tailNumberWithIcao24);
+        String icao24 = Utils.extractIcao24(tailNumberWithIcao24);
         List<AircraftPosition> aircraftPositions = aircraftPositionRepository.findLatestPositionOfAircraft(icao24);
         fillTailNumber(aircraftPositions);
 
@@ -135,16 +134,4 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
         }
     }
 
-    private String extractIcao24(String tailNumberWithIcao24) {
-        Pattern pattern = Pattern.compile("(.*)\\((.*)\\)");
-        Matcher matcher = pattern.matcher(tailNumberWithIcao24);
-
-        String icao24 = "";
-
-        while (matcher.find()) {
-            icao24 = matcher.group(2).toLowerCase();
-        }
-
-        return icao24;
-    }
 }
