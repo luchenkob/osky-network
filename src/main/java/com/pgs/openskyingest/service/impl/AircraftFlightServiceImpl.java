@@ -63,12 +63,12 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
 
     @Override
     public List<AircraftFlight> retrieveAllFlightsDepartureAt(String gpsCode) {
-        return aircraftFlightRepository.findAircraftFlightByEstDepartureAirport(gpsCode);
+        return aircraftFlightRepository.findAircraftFlightByEstDepartureAirportAndCallsignStartingWith(gpsCode, "N");
     }
 
     @Override
     public List<AircraftFlight> retrieveAllFlightsArriveTo(String gpsCode) {
-        return aircraftFlightRepository.findAircraftFlightByEstArrivalAirport(gpsCode);
+        return aircraftFlightRepository.findAircraftFlightByEstArrivalAirportAndCallsignStartingWith(gpsCode, "N");
     }
 
     @Override

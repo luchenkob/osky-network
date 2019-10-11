@@ -10,9 +10,9 @@ public interface AircraftFlightRepository extends MongoRepository<AircraftFlight
 
     List<AircraftFlight> findAircraftFlightByIcao24EqualsAndFirstSeenBetween(String icao24, Long fromTimestamp, Long toTimestamp);
 
-    List<AircraftFlight> findAircraftFlightByEstDepartureAirport(String gpsCode);
+    List<AircraftFlight> findAircraftFlightByEstDepartureAirportAndCallsignStartingWith(String gpsCode, String callSignPrefix);
 
-    List<AircraftFlight> findAircraftFlightByEstArrivalAirport(String gpsCode);
+    List<AircraftFlight> findAircraftFlightByEstArrivalAirportAndCallsignStartingWith(String gpsCode, String callSignPrefix);
 
     AircraftFlight findAircraftFlightByIcao24AndFirstSeenLessThanEqualAndLastSeenGreaterThanEqual(String icao24, Long fromTimestamp, Long toTimestamp);
 
