@@ -66,6 +66,7 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
             //waiting threads finish running
         }
 
+        fillTailNumberAndOwner(returnList);
         return returnList;
     }
 
