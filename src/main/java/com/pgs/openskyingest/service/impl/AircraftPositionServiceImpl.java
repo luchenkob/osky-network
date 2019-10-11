@@ -73,7 +73,7 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
     public List<AircraftPosition> retrieveLatestPositionOfAllAircraft(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         List<AircraftPosition> aircraftPositions = aircraftPositionRepository.findLastestPositionOfAllAircraft(pageable);
-        fillTailNumber(aircraftPositions);
+        fillTailNumberAndOwner(aircraftPositions);
 
         return aircraftPositions;
     }
@@ -82,7 +82,7 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
     public List<AircraftPosition> retrieveLatestPositionOfAircraft(String tailNumberWithIcao24) {
         String icao24 = Utils.extractIcao24(tailNumberWithIcao24);
         List<AircraftPosition> aircraftPositions = aircraftPositionRepository.findLatestPositionOfAircraft(icao24);
-        fillTailNumber(aircraftPositions);
+        fillTailNumberAndOwner(aircraftPositions);
 
         return aircraftPositions;
     }
@@ -107,13 +107,14 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
         return aircraftPositionRepository.saveAll(aircraftPositions);
     }
 
-    private void fillTailNumber(List<AircraftPosition> aircraftPositions){
+    private void fillTailNumberAndOwner(List<AircraftPosition> aircraftPositions){
         // fill tail Number
         ExecutorService executor = Executors.newFixedThreadPool(15);
         for (AircraftPosition aircraftPosition : aircraftPositions) {
             Runnable runnable = () -> {
                 AircraftMetadata aircraftMetadata = aircraftMetadataService.retrieveAircraftMetadataByIcao24(aircraftPosition.getIcao24());
                 aircraftPosition.setTailNumber(aircraftMetadata.getRegistration());
+                aircraftPosition.setOwner(aircraftMetadata.getOwner());
                 AircraftFlight aircraftFlight = aircraftFlightService.retrieveAircraftFlightByIcao24AndFirstSeenLessThanEqualAndLastSeenGreaterThanEqual(aircraftPosition.getIcao24(), aircraftPosition.getMaxTimePosition(), aircraftPosition.getMaxTimePosition());
 
                 if (aircraftFlight != null && aircraftFlight.getEstArrivalAirport() != null) {

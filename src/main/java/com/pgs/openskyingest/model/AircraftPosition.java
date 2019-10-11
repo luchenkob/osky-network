@@ -44,6 +44,8 @@ public class AircraftPosition {
 
     private String airportRegion;
 
+    private String owner;
+
 //    0  icao24	        "a11780",
 //    1  callsign	        "N17GX ",
 //    2  origin_country    "United States",
