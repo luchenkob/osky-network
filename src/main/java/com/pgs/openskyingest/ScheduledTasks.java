@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 @Component
 @EnableAsync
@@ -62,7 +61,7 @@ public class ScheduledTasks {
                     List<AircraftFlight> flights = openSkyIntegrationService.getFlightsOfAircraft(icao24, begin, end);
                     logger.info("For icao24 {} opensky return {} flights", tailNumber + "(" + icao24 + ")", flights.size());
 
-                    List<AircraftFlight> newFlight = Collections.synchronizedList( new ArrayList() );
+                    List<AircraftFlight> newFlight = new ArrayList();
                     flights.forEach(flight -> {
                         if (!aircraftFlightService.isFlightExist(flight)) {
                             logger.info("inserting flight {} since it is not existed in database", flight);
