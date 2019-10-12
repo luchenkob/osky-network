@@ -81,9 +81,9 @@ public class ScheduledTasks {
                     }
 
                 } catch (Exception e) {
+                    logger.error(e.getMessage());
                     // most of exceptions will be thrown when opensky return 503 service temporay unavailable
                     try {
-                        logger.error(e.getMessage());
                         Thread.sleep(2 * 60 * 1000L);
                     } catch (InterruptedException e1) {
                         // Do nothing..
