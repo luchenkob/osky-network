@@ -10,6 +10,7 @@ import com.pgs.openskyingest.service.AirportMetadataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
@@ -191,6 +192,12 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     @Override
     public List<AircraftFlight> insertAll(List<AircraftFlight> aircraftFlights) {
         return aircraftFlightRepository.saveAll(aircraftFlights);
+    }
+
+    @Override
+    @Cacheable("isFlightExist")
+    public Boolean isFlightExist(AircraftFlight aircraftFlight) {
+        return aircraftFlightRepository.existsAircraftFlightByIcao24EqualsAndFirstSeenEqualsAndLastSeenEquals(aircraftFlight.getIcao24(), aircraftFlight.getFirstSeen(), aircraftFlight.getLastSeen());
     }
 
     private String getAiportName(String gpsCode) {

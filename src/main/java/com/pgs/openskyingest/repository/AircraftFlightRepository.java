@@ -16,5 +16,7 @@ public interface AircraftFlightRepository extends MongoRepository<AircraftFlight
 
     AircraftFlight findAircraftFlightByIcao24AndFirstSeenLessThanEqualAndLastSeenGreaterThanEqual(String icao24, Long fromTimestamp, Long toTimestamp);
 
+    Boolean existsAircraftFlightByIcao24EqualsAndFirstSeenEqualsAndLastSeenEquals(String icao24, Long firstSeen, Long lastSeen);
+
     Long deleteAircraftFlightByIcao24(String icao24);
 }

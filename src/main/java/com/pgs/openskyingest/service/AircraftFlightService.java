@@ -26,4 +26,6 @@ public interface AircraftFlightService {
     Long numberOfRecords();
 
     List<AircraftFlight> insertAll(List<AircraftFlight> aircraftFlights);
+
+    Boolean isFlightExist(AircraftFlight aircraftFlight);
 }

@@ -47,7 +47,7 @@ public class ScheduledTasks {
 
         // identify latest flights
         Long end = Instant.now().getEpochSecond();
-        Long begin = end - 30*24*60*60;  // TODO: after system is stable, we should change 30 to 2 days
+        Long begin = end - 30 * 24 * 60 * 60;  // TODO: after system is stable, we should change 30 to 2 days
 
         logger.info("Trigger getting and updating flights between {} and {}", begin, end);
 
@@ -61,34 +61,30 @@ public class ScheduledTasks {
                     List<AircraftFlight> flights = openSkyIntegrationService.getFlightsOfAircraft(icao24, begin, end);
                     logger.info("For icao24 {} opensky return {} flights", icao24, flights.size());
 
-                    if (!flights.isEmpty()) {
-                        List<AircraftFlight> dbFlights = aircraftFlightService.retrieveAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, begin, end);
-                        logger.info("For icao24 {} in database return {} flights ", icao24, dbFlights.size());
+                    List<AircraftFlight> newFlight = new ArrayList<>();
+                    flights.forEach(flight -> {
+                        if (!aircraftFlightService.isFlightExist(flight)) {
+                            logger.info("inserting flight {} since it is not existed in database", flight);
+                            newFlight.add(flight);
 
-                        // for optimization, below code will run
-                        // when opensky return number of flights > number of flights in our databsae
-                        if (flights.size() > dbFlights.size()) {
-                            List<AircraftFlight> newFlights = flights.stream().filter(flight -> !dbFlights.contains(flight)).collect(Collectors.toList());
+                            // update position of flight
+                            // It's too often, we couldn't get position based on flight.
+                            // Because in get all current state vector, opensky return null value for lat/long field
+                            List<AircraftPosition> positions = openSkyIntegrationService.getTrackedPositionOfAircraft(icao24, flight.getFirstSeen());
+                            aircraftPositionService.insertAll(positions);
 
-                            if (!newFlights.isEmpty()) {
-                                logger.info("For icao24 {}, found and saved {} new flights", icao24, newFlights.size());
-                                aircraftFlightService.insertAll(newFlights);
-
-                                // It's too often, we couldn't get position based on flight.
-                                // Because in get all current state vector, opensky return null value for lat/long field
-                                newFlights.forEach(flight -> {
-                                    // update position of flight
-                                    List<AircraftPosition> positions = openSkyIntegrationService.getTrackedPositionOfAircraft(icao24, flight.getFirstSeen());
-                                    aircraftPositionService.insertAll(positions);
-                                });
-                            }
                         }
+                    });
+
+                    if (!newFlight.isEmpty()) {
+                        aircraftFlightService.insertAll(newFlight);
                     }
+
                 } catch (Exception e) {
                     // most of exceptions will be thrown when opensky return 503 service temporay unavailable
-                    try  {
+                    try {
                         Thread.sleep(2 * 60 * 1000L);
-                    } catch (InterruptedException e1){
+                    } catch (InterruptedException e1) {
                         // Do nothing..
                     }
                 }
@@ -96,20 +92,20 @@ public class ScheduledTasks {
         }
 
         executor.shutdown();
-        while(!executor.isTerminated()) {
+        while (!executor.isTerminated()) {
             //waiting threads finish running
         }
     }
 
     @Async
-    @Scheduled(fixedRate = 2 * 60 * 1000)  // 2m
+    @Scheduled(fixedRate = 3 * 60 * 1000)  // 3m
     public void updatePositionOfWatchingAircrafts() {
         logger.info("Trigger getting and updating all watching aircraft...");
 
         List<AircraftPosition> livingPositionOfAircrafts = openSkyIntegrationService.getAllCurrentStateVector();
         logger.info("opensky return {} records of all state vectors", livingPositionOfAircrafts.size());
 
-        List<AircraftPosition> willInsertToMongo = Collections.synchronizedList( new ArrayList() );
+        List<AircraftPosition> willInsertToMongo = Collections.synchronizedList(new ArrayList());
 
         ExecutorService executor = Executors.newFixedThreadPool(6);
         for (AircraftPosition position : livingPositionOfAircrafts) {
@@ -124,11 +120,26 @@ public class ScheduledTasks {
                     aircraftMetadata.setTimePosition(position.getTimePosition());
 
                     aircraftMetadataService.save(aircraftMetadata);
+
+                    // identify latest flights in 1hrs and insert flight
+//                    Long end = Instant.now().getEpochSecond();
+//                    Long begin = end - 1 * 24 * 60 * 60;  // 1 day
+//                    List<AircraftFlight> flights = openSkyIntegrationService.getFlightsOfAircraft(position.getIcao24(), begin, end);
+//                    List<AircraftFlight> newFlight = new ArrayList<>();
+//                    flights.forEach(flight -> {
+//                        if (!aircraftFlightService.isFlightExist(flight)) {
+//                            newFlight.add(flight);
+//                        }
+//                    });
+//                    if (!newFlight.isEmpty()) {
+//                        aircraftFlightService.insertAll(newFlight);
+//                    }
+
                 }
             });
         }
         executor.shutdown();
-        while(!executor.isTerminated()) {
+        while (!executor.isTerminated()) {
             //waiting threads finish running
         }
 
