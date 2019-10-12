@@ -30,4 +30,8 @@ public interface AircraftMetadataService {
     boolean isIcao24Exist(String icao24);
 
     Long numberOfRecords();
+
+    String getAircraftOwner(String icao24);
+
+    String getAircraftTailNumber(String icao24);
 }

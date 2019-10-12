@@ -204,9 +204,8 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     }
 
     private void fillOwner(List<AircraftFlight> aircraftFlights) {
-        aircraftFlights.parallelStream().forEach(flight -> {
-            AircraftMetadata aircraftMetadata = aircraftMetadataService.retrieveAircraftMetadataByIcao24(flight.getIcao24());
-            flight.setOwner(aircraftMetadata.getOwner());
-        });
+        aircraftFlights.parallelStream().forEach(flight ->
+            flight.setOwner(aircraftMetadataService.getAircraftOwner(flight.getIcao24()))
+        );
     }
 }

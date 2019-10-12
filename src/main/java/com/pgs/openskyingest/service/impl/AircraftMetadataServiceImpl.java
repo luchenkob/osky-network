@@ -117,4 +117,18 @@ public class AircraftMetadataServiceImpl implements AircraftMetadataService {
         return aircraftMetadataRepository.count();
     }
 
+    @Override
+    @Cacheable("aircraftOwnerInfo")
+    public String getAircraftOwner(String icao24) {
+        AircraftMetadata aircraftMetadata = aircraftMetadataRepository.findAircraftMetadataByIcao24(icao24);
+        return aircraftMetadata.getOwner();
+    }
+
+    @Override
+    @Cacheable("aircraftTailNumberInfo")
+    public String getAircraftTailNumber(String icao24) {
+        AircraftMetadata aircraftMetadata = aircraftMetadataRepository.findAircraftMetadataByIcao24(icao24);
+        return aircraftMetadata.getRegistration();
+    }
+
 }

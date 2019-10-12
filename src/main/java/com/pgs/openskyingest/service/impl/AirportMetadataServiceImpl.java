@@ -4,6 +4,7 @@ import com.pgs.openskyingest.model.AirportMetadata;
 import com.pgs.openskyingest.repository.AirportMetadataRepository;
 import com.pgs.openskyingest.service.AirportMetadataService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class AirportMetadataServiceImpl implements AirportMetadataService {
     }
 
     @Override
+    @Cacheable("airportMetadataByGpsCode")
     public List<AirportMetadata> retrieveAirportMetadataByGpsCode(String gpsCode) {
         return airportMetadataRepository.findAirportMetadataByGpsCode(gpsCode);
     }

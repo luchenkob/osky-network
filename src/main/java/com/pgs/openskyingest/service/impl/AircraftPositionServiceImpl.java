@@ -113,9 +113,8 @@ public class AircraftPositionServiceImpl implements AircraftPositionService {
         ExecutorService executor = Executors.newFixedThreadPool(15);
         for (AircraftPosition aircraftPosition : aircraftPositions) {
             Runnable runnable = () -> {
-                AircraftMetadata aircraftMetadata = aircraftMetadataService.retrieveAircraftMetadataByIcao24(aircraftPosition.getIcao24());
-                aircraftPosition.setTailNumber(aircraftMetadata.getRegistration());
-                aircraftPosition.setOwner(aircraftMetadata.getOwner());
+                aircraftPosition.setTailNumber(aircraftMetadataService.getAircraftTailNumber(aircraftPosition.getIcao24()));
+                aircraftPosition.setOwner(aircraftMetadataService.getAircraftOwner(aircraftPosition.getIcao24()));
                 AircraftFlight aircraftFlight = aircraftFlightService.retrieveAircraftFlightByIcao24AndFirstSeenLessThanEqualAndLastSeenGreaterThanEqual(aircraftPosition.getIcao24(), aircraftPosition.getMaxTimePosition(), aircraftPosition.getMaxTimePosition());
 
                 if (aircraftFlight != null && aircraftFlight.getEstArrivalAirport() != null) {
