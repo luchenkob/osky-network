@@ -43,7 +43,7 @@ public class ScheduledTasks {
     @Async
     @Scheduled(fixedRate = 48 * 60 * 60 * 1000) // 48hrs
     public void updateFlightsOfWatchingAircrafts() {
-        List<AircraftMetadata> aircraftMetadataList = aircraftMetadataService.retrieveAll();
+        List<AircraftMetadata> aircraftMetadataList = aircraftMetadataService.retrieveAllAircraft(0, 10);
 
         // identify latest flights
         Long end = Instant.now().getEpochSecond();
@@ -56,10 +56,11 @@ public class ScheduledTasks {
         for (AircraftMetadata aircraftMetadata : aircraftMetadataList) {
             executor.execute(() -> {
                 try {
+                    String tailNumber = aircraftMetadata.getRegistration();
                     String icao24 = aircraftMetadata.getIcao24();
 
                     List<AircraftFlight> flights = openSkyIntegrationService.getFlightsOfAircraft(icao24, begin, end);
-                    logger.info("For icao24 {} opensky return {} flights", icao24, flights.size());
+                    logger.info("For icao24 {} opensky return {} flights", tailNumber + "(" + icao24 + ")", flights.size());
 
                     List<AircraftFlight> newFlight = new ArrayList<>();
                     flights.parallelStream().forEach(flight -> {
@@ -99,7 +100,7 @@ public class ScheduledTasks {
     }
 
     @Async
-    @Scheduled(fixedRate = 3 * 60 * 1000)  // 3m
+    //@Scheduled(fixedRate = 3 * 60 * 1000)  // 3m
     public void updatePositionOfWatchingAircrafts() {
         logger.info("Trigger getting and updating all watching aircraft...");
 
