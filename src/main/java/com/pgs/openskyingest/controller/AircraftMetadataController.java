@@ -2,12 +2,10 @@ package com.pgs.openskyingest.controller;
 
 import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftOpenskyInfo;
-import com.pgs.openskyingest.model.AircraftPosition;
 import com.pgs.openskyingest.response.ResponseGeneric;
 import com.pgs.openskyingest.service.AircraftMetadataService;
 import com.pgs.openskyingest.service.OpenSkyIntegrationService;
 import com.pgs.openskyingest.util.Utils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;

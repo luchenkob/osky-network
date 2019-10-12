@@ -34,4 +34,6 @@ public interface AircraftMetadataService {
     String getAircraftOwner(String icao24);
 
     String getAircraftTailNumber(String icao24);
+
+    void save(AircraftMetadata aircraftMetadata);
 }

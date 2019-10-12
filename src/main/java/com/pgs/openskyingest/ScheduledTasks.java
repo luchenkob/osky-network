@@ -110,6 +110,12 @@ public class ScheduledTasks {
                 if (icao24Existed) {
                     // update list
                     willInsertToMongo.add(position);
+
+                    // update on aircraft db
+                    AircraftMetadata aircraftMetadata = aircraftMetadataService.retrieveAircraftMetadataByIcao24(position.getIcao24());
+                    aircraftMetadata.setTimePosition(position.getTimePosition());
+
+                    aircraftMetadataService.save(aircraftMetadata);
                 }
             });
         }

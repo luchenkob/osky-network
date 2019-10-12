@@ -48,4 +48,7 @@ public class AircraftMetadata {
 
     // flag indicate whether we should track this aircarft or not
     private Boolean isTracking = Boolean.FALSE;
+
+    // time of latest position of aircraft
+    private Long timePosition;
 }

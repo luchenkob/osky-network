@@ -14,6 +14,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -87,7 +88,7 @@ public class AircraftMetadataServiceImpl implements AircraftMetadataService {
     @Override
     @Cacheable("retrieveAllAircraft")
     public List<AircraftMetadata> retrieveAllAircraft(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "timePosition"));
         Page<AircraftMetadata> aircraftMetadataPage = aircraftMetadataRepository.findAll(pageable);
 
         return aircraftMetadataPage.getContent();
@@ -129,6 +130,11 @@ public class AircraftMetadataServiceImpl implements AircraftMetadataService {
     public String getAircraftTailNumber(String icao24) {
         AircraftMetadata aircraftMetadata = aircraftMetadataRepository.findAircraftMetadataByIcao24(icao24);
         return aircraftMetadata.getRegistration();
+    }
+
+    @Override
+    public void save(AircraftMetadata aircraftMetadata) {
+        aircraftMetadataRepository.save(aircraftMetadata);
     }
 
 }
