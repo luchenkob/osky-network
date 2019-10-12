@@ -23,6 +23,7 @@ public class AircraftFlight {
     private Integer departureAirportCandidatesCount;
     private Integer arrivalAirportCandidatesCount;
     private String tailNumber;
+    private String owner;
 
     @Override
     public boolean equals(Object o) {

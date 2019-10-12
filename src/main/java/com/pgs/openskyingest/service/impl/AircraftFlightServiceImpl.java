@@ -2,9 +2,11 @@ package com.pgs.openskyingest.service.impl;
 
 import com.pgs.openskyingest.model.AircraftFlight;
 import com.pgs.openskyingest.model.AircraftFlightCompare;
+import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AirportMetadata;
 import com.pgs.openskyingest.repository.AircraftFlightRepository;
 import com.pgs.openskyingest.service.AircraftFlightService;
+import com.pgs.openskyingest.service.AircraftMetadataService;
 import com.pgs.openskyingest.service.AirportMetadataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,9 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     private AircraftFlightRepository aircraftFlightRepository;
 
     @Autowired
+    private AircraftMetadataService aircraftMetadataService;
+
+    @Autowired
     private AirportMetadataService airportMetadataService;
 
     @Override
@@ -58,22 +63,30 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
             flight.setEstArrivalAirport(getAiportName(flight.getEstArrivalAirport()));
         }
 
+        fillOwner(flights);
+
         return flights;
     }
 
     @Override
     public List<AircraftFlight> retrieveAllFlightsDepartureAt(String gpsCode) {
-        return aircraftFlightRepository.findAircraftFlightByEstDepartureAirportAndCallsignStartingWith(gpsCode, "N");
+        List<AircraftFlight> aircraftFlights = aircraftFlightRepository.findAircraftFlightByEstDepartureAirportAndCallsignStartingWith(gpsCode, "N");
+        fillOwner(aircraftFlights);
+        return aircraftFlights;
     }
 
     @Override
     public List<AircraftFlight> retrieveAllFlightsArriveTo(String gpsCode) {
-        return aircraftFlightRepository.findAircraftFlightByEstArrivalAirportAndCallsignStartingWith(gpsCode, "N");
+        List<AircraftFlight> aircraftFlights = aircraftFlightRepository.findAircraftFlightByEstArrivalAirportAndCallsignStartingWith(gpsCode, "N");
+        fillOwner(aircraftFlights);
+        return aircraftFlights;
     }
 
     @Override
     public List<AircraftFlight> retrieveAircraftFlightByIcao24EqualsAndFirstSeenBetween(String icao24, Long begin, Long end) {
-        return aircraftFlightRepository.findAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, begin, end);
+        List<AircraftFlight> aircraftFlights = aircraftFlightRepository.findAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, begin, end);
+        fillOwner(aircraftFlights);
+        return aircraftFlights;
     }
 
     @Override
@@ -188,5 +201,12 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
         } else {
             return gpsCode;
         }
+    }
+
+    private void fillOwner(List<AircraftFlight> aircraftFlights) {
+        aircraftFlights.parallelStream().forEach(flight -> {
+            AircraftMetadata aircraftMetadata = aircraftMetadataService.retrieveAircraftMetadataByIcao24(flight.getIcao24());
+            flight.setOwner(aircraftMetadata.getOwner());
+        });
     }
 }
