@@ -63,7 +63,7 @@ public class ScheduledTasks {
                     logger.info("For icao24 {} opensky return {} flights", tailNumber + "(" + icao24 + ")", flights.size());
 
                     List<AircraftFlight> newFlight = Collections.synchronizedList( new ArrayList() );
-                    flights.parallelStream().forEach(flight -> {
+                    flights.forEach(flight -> {
                         if (!aircraftFlightService.isFlightExist(flight)) {
                             logger.info("inserting flight {} since it is not existed in database", flight);
                             newFlight.add(flight);
@@ -71,8 +71,8 @@ public class ScheduledTasks {
                             // update position of flight
                             // It's too often, we couldn't get position based on flight.
                             // Because in get all current state vector, opensky return null value for lat/long field
-                            // List<AircraftPosition> positions = openSkyIntegrationService.getTrackedPositionOfAircraft(icao24, flight.getFirstSeen());
-                            // aircraftPositionService.insertAll(positions);
+                            List<AircraftPosition> positions = openSkyIntegrationService.getTrackedPositionOfAircraft(icao24, flight.getFirstSeen());
+                            aircraftPositionService.insertAll(positions);
 
                         }
                     });
