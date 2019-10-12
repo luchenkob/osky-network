@@ -121,21 +121,6 @@ public class ScheduledTasks {
                     aircraftMetadata.setTimePosition(position.getTimePosition());
 
                     aircraftMetadataService.save(aircraftMetadata);
-
-                    // identify latest flights in 1hrs and insert flight
-//                    Long end = Instant.now().getEpochSecond();
-//                    Long begin = end - 1 * 24 * 60 * 60;  // 1 day
-//                    List<AircraftFlight> flights = openSkyIntegrationService.getFlightsOfAircraft(position.getIcao24(), begin, end);
-//                    List<AircraftFlight> newFlight = new ArrayList<>();
-//                    flights.forEach(flight -> {
-//                        if (!aircraftFlightService.isFlightExist(flight)) {
-//                            newFlight.add(flight);
-//                        }
-//                    });
-//                    if (!newFlight.isEmpty()) {
-//                        aircraftFlightService.insertAll(newFlight);
-//                    }
-
                 }
             });
         }

@@ -1,14 +1,12 @@
 //package com.pgs.openskyingest.service;
 //
 //import com.pgs.openskyingest.model.AircraftFlight;
+//import org.junit.Assert;
 //import org.junit.Test;
 //import org.junit.runner.RunWith;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.boot.test.context.SpringBootTest;
 //import org.springframework.test.context.junit4.SpringRunner;
-//
-//import java.util.List;
-//import java.util.Map;
 //
 //@RunWith(SpringRunner.class)
 //@SpringBootTest
@@ -18,8 +16,11 @@
 //    private AircraftFlightService aircraftFlightService;
 //
 //    @Test
-//    public void gettingAndUpdateStateOfAllWatchingAircraft() {
-//        Map<String, List<AircraftFlight>> ret = aircraftFlightService.retrieveAircraftFlightGroupByDate("N15GX", 1565715600l, 1568307600l);
-//        System.out.print(ret.size());
+//    public void testFlightExist() {
+//        AircraftFlight aircraftFlight = new AircraftFlight();
+//        aircraftFlight.setIcao24("a6a6b4");
+//        aircraftFlight.setFirstSeen(1568894857L);
+//        aircraftFlight.setLastSeen(1568900062L);
+//        Assert.assertEquals(Boolean.TRUE, aircraftFlightService.isFlightExist(aircraftFlight));
 //    }
 //}
