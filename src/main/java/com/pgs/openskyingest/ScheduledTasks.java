@@ -62,7 +62,7 @@ public class ScheduledTasks {
                     logger.info("For icao24 {} opensky return {} flights", icao24, flights.size());
 
                     List<AircraftFlight> newFlight = new ArrayList<>();
-                    flights.forEach(flight -> {
+                    flights.parallelStream().forEach(flight -> {
                         if (!aircraftFlightService.isFlightExist(flight)) {
                             logger.info("inserting flight {} since it is not existed in database", flight);
                             newFlight.add(flight);
@@ -83,6 +83,7 @@ public class ScheduledTasks {
                 } catch (Exception e) {
                     // most of exceptions will be thrown when opensky return 503 service temporay unavailable
                     try {
+                        logger.error(e.getMessage());
                         Thread.sleep(2 * 60 * 1000L);
                     } catch (InterruptedException e1) {
                         // Do nothing..
