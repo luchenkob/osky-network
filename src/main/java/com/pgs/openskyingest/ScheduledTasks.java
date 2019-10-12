@@ -41,7 +41,7 @@ public class ScheduledTasks {
     private AircraftMetadataService aircraftMetadataService;
 
     @Async
-    @Scheduled(fixedRate = 36 * 60 * 60 * 1000) // 36hrs
+    @Scheduled(fixedRate = 48 * 60 * 60 * 1000) // 48hrs
     public void updateFlightsOfWatchingAircrafts() {
         List<AircraftMetadata> aircraftMetadataList = aircraftMetadataService.retrieveAll();
 
@@ -73,6 +73,14 @@ public class ScheduledTasks {
                             if (!newFlights.isEmpty()) {
                                 logger.info("For icao24 {}, found and saved {} new flights", icao24, newFlights.size());
                                 aircraftFlightService.insertAll(newFlights);
+
+                                // It's too often, we couldn't get position based on flight.
+                                // Because in get all current state vector, opensky return null value for lat/long field
+                                newFlights.forEach(flight -> {
+                                    // update position of flight
+                                    List<AircraftPosition> positions = openSkyIntegrationService.getTrackedPositionOfAircraft(icao24, flight.getFirstSeen());
+                                    aircraftPositionService.insertAll(positions);
+                                });
                             }
                         }
                     }

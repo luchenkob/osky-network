@@ -1,7 +1,6 @@
 package com.pgs.openskyingest.service.impl;
 
 import com.pgs.openskyingest.model.AircraftFlight;
-import com.pgs.openskyingest.model.AircraftMetadata;
 import com.pgs.openskyingest.model.AircraftPosition;
 import com.pgs.openskyingest.model.AirportMetadata;
 import com.pgs.openskyingest.repository.AircraftPositionRepository;
