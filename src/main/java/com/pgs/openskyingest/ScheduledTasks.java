@@ -62,7 +62,7 @@ public class ScheduledTasks {
                     List<AircraftFlight> flights = openSkyIntegrationService.getFlightsOfAircraft(icao24, begin, end);
                     logger.info("For icao24 {} opensky return {} flights", tailNumber + "(" + icao24 + ")", flights.size());
 
-                    List<AircraftFlight> newFlight = new ArrayList<>();
+                    List<AircraftFlight> newFlight = Collections.synchronizedList( new ArrayList() );
                     flights.parallelStream().forEach(flight -> {
                         if (!aircraftFlightService.isFlightExist(flight)) {
                             logger.info("inserting flight {} since it is not existed in database", flight);
@@ -100,7 +100,7 @@ public class ScheduledTasks {
     }
 
     @Async
-    //@Scheduled(fixedRate = 3 * 60 * 1000)  // 3m
+    @Scheduled(fixedRate = 3 * 60 * 1000)  // 3m
     public void updatePositionOfWatchingAircrafts() {
         logger.info("Trigger getting and updating all watching aircraft...");
 
