@@ -12,7 +12,9 @@ import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.skip;
@@ -42,7 +44,7 @@ public class AircraftPositionAggregationRepositoryImpl implements AircraftPositi
                 .withOptions(Aggregation.newAggregationOptions().allowDiskUse(true).build());
 
         AggregationResults<AircraftPosition> result = mongoTemplate.aggregate(aggregation, "aircraftPosition", AircraftPosition.class);
-        return result.getMappedResults();
+        return result.getMappedResults().stream().sorted((o1, o2) -> (o1.getMaxTimePosition() >= o2.getMaxTimePosition()) ? -1 : 1).collect(Collectors.toList());
     }
 
     @Override
