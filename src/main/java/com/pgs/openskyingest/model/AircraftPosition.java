@@ -17,6 +17,8 @@ public class AircraftPosition {
 
     private String icao24;
 
+    private String callSign;
+
     private Long timePosition;
 
     private Long maxTimePosition;

@@ -128,11 +128,13 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
         try (CloseableHttpResponse response = client.execute(httpGet)) {
             String json = EntityUtils.toString(response.getEntity());
             JsonNode paths = objectMapper.readTree(json).path("path");
+            JsonNode callSign = objectMapper.readTree(json).path("callsign");
             List<AircraftPosition> aircraftPositions = new ArrayList<>();
             if (paths.isArray()) {
                 for (final JsonNode path : paths) {
                     AircraftPosition aircraftPosition = new AircraftPosition();
                     aircraftPosition.setIcao24(icao24);
+                    aircraftPosition.setCallSign(callSign.asText());
                     aircraftPosition.setTimePosition(path.path(0).asLong());
                     aircraftPosition.setLatitude(path.path(1).asDouble());
                     aircraftPosition.setLongitude(path.path(2).asDouble());
@@ -162,7 +164,7 @@ public class OpenSkyIntegrationServiceImpl implements OpenSkyIntegrationService 
                 for (final JsonNode state : states) {
                     AircraftPosition aircraftPosition = new AircraftPosition();
                     aircraftPosition.setIcao24(state.path(0).asText());
-                    aircraftPosition.setTailNumber(state.path(1).asText());   // assume callsign is tailNumber
+                    aircraftPosition.setCallSign(state.path(1).asText());
                     aircraftPosition.setTimePosition(state.path(3).asLong());
                     aircraftPosition.setLongitude(state.path(5).asDouble());
                     aircraftPosition.setLatitude(state.path(6).asDouble());
