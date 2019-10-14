@@ -33,11 +33,13 @@ public class AircraftPositionAggregationRepositoryImpl implements AircraftPositi
         MatchOperation matchOperation = Aggregation.match(new Criteria("latitude").gt(0).and("longitude").gt(0));
         SortOperation sortOperation = Aggregation.sort(new Sort(Sort.Direction.DESC, "timePosition"));
         GroupOperation groupOperation = getGroupOperation();
+        SortOperation sortOperationByMaxTimePosition = Aggregation.sort(new Sort(Sort.Direction.DESC, "maxTimePosition"));
 
         Aggregation aggregation = Aggregation.newAggregation(
                 matchOperation
                 , sortOperation
                 , groupOperation
+                , sortOperationByMaxTimePosition
                 , skip(pageable.getPageNumber() * pageable.getPageSize() * 1L)
                 , limit(pageable.getPageSize())
                 )
