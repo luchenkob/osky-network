@@ -36,7 +36,7 @@ public class SummaryController {
         summary.put("aircraftMetadata", aircraftMetadataService.numberOfRecords());
         summary.put("aircraftFlight", aircraftFlightService.numberOfRecords());
         summary.put("aircraftPosition", aircraftPositionService.numberOfRecords());
-        summary.put("aircraftLatestPosition", aircraftPositionService.numberOfLatestPositionRecords());
+        summary.put("aircraftLatestPosition", 1000); // hard code it
         summary.put("airport", airportMetadataService.numberOfRecords());
 
         return summary;
