@@ -56,14 +56,7 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
         logger.info("Retrieve aircraft flight of icao24 {} tailNumber {} in time [{}, {}]", icao24, tailNumber, fromTimestamp, toTimestamp);
 
         List<AircraftFlight> flights = aircraftFlightRepository.findAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, fromTimestamp, toTimestamp);
-
-        for (AircraftFlight flight : flights) {
-            flight.setTailNumber(tailNumber + "(" + icao24 + ")");
-            flight.setEstDepartureAirport(getAiportName(flight.getEstDepartureAirport()));
-            flight.setEstArrivalAirport(getAiportName(flight.getEstArrivalAirport()));
-        }
-
-        fillOwner(flights);
+        fillTailNumberAndAirportAndOwner(flights, tailNumber, icao24);
 
         return flights;
     }
@@ -71,21 +64,21 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     @Override
     public List<AircraftFlight> retrieveAllFlightsDepartureAt(String gpsCode) {
         List<AircraftFlight> aircraftFlights = aircraftFlightRepository.findAircraftFlightByEstDepartureAirportAndCallsignStartingWith(gpsCode, "N");
-        fillOwner(aircraftFlights);
+        fillTailNumberAndAirportAndOwner(aircraftFlights);
         return aircraftFlights;
     }
 
     @Override
     public List<AircraftFlight> retrieveAllFlightsArriveTo(String gpsCode) {
         List<AircraftFlight> aircraftFlights = aircraftFlightRepository.findAircraftFlightByEstArrivalAirportAndCallsignStartingWith(gpsCode, "N");
-        fillOwner(aircraftFlights);
+        fillTailNumberAndAirportAndOwner(aircraftFlights);
         return aircraftFlights;
     }
 
     @Override
     public List<AircraftFlight> retrieveAircraftFlightByIcao24EqualsAndFirstSeenBetween(String icao24, Long begin, Long end) {
         List<AircraftFlight> aircraftFlights = aircraftFlightRepository.findAircraftFlightByIcao24EqualsAndFirstSeenBetween(icao24, begin, end);
-        fillOwner(aircraftFlights);
+        fillTailNumberAndAirportAndOwner(aircraftFlights);
         return aircraftFlights;
     }
 
@@ -200,6 +193,22 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
         return aircraftFlightRepository.existsAircraftFlightByIcao24EqualsAndFirstSeenEqualsAndLastSeenEquals(aircraftFlight.getIcao24(), aircraftFlight.getFirstSeen(), aircraftFlight.getLastSeen());
     }
 
+    private void fillTailNumberAndAirportAndOwner(List<AircraftFlight> aircraftFlights) {
+        fillTailNumberAndAirportAndOwner(aircraftFlights, "", "");
+    }
+
+    private void fillTailNumberAndAirportAndOwner(List<AircraftFlight> aircraftFlights, String tailNumber, String icao24) {
+        for (AircraftFlight flight : aircraftFlights) {
+            if (!tailNumber.isEmpty() && !icao24.isEmpty()) {
+                flight.setTailNumber(tailNumber + "(" + icao24 + ")");
+            }
+            flight.setEstDepartureAirport(getAiportName(flight.getEstDepartureAirport()));
+            flight.setEstArrivalAirport(getAiportName(flight.getEstArrivalAirport()));
+            flight.setOwner(aircraftMetadataService.getAircraftOwner(flight.getIcao24()));
+        }
+
+    }
+
     private String getAiportName(String gpsCode) {
         List<AirportMetadata> airports = airportMetadataService.retrieveAirportMetadataByGpsCode(gpsCode);
         if (!airports.isEmpty()) {
@@ -209,9 +218,4 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
         }
     }
 
-    private void fillOwner(List<AircraftFlight> aircraftFlights) {
-        aircraftFlights.parallelStream().forEach(flight ->
-            flight.setOwner(aircraftMetadataService.getAircraftOwner(flight.getIcao24()))
-        );
-    }
 }
