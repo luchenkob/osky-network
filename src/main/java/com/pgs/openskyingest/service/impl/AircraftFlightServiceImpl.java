@@ -198,15 +198,14 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     }
 
     private void fillTailNumberAndAirportAndOwner(List<AircraftFlight> aircraftFlights, String tailNumber, String icao24) {
-        for (AircraftFlight flight : aircraftFlights) {
+        aircraftFlights.parallelStream().forEach(flight -> {
             if (!tailNumber.isEmpty() && !icao24.isEmpty()) {
                 flight.setTailNumber(tailNumber + "(" + icao24 + ")");
             }
             flight.setEstDepartureAirport(getAiportName(flight.getEstDepartureAirport()));
             flight.setEstArrivalAirport(getAiportName(flight.getEstArrivalAirport()));
             flight.setOwner(aircraftMetadataService.getAircraftOwner(flight.getIcao24()));
-        }
-
+        });
     }
 
     private String getAiportName(String gpsCode) {
