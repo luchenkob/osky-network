@@ -211,7 +211,7 @@ public class AircraftFlightServiceImpl implements AircraftFlightService {
     private String getAiportName(String gpsCode) {
         List<AirportMetadata> airports = airportMetadataService.retrieveAirportMetadataByGpsCode(gpsCode);
         if (!airports.isEmpty()) {
-            return airports.get(0).getName();
+            return airports.get(0).getName() + "(" + airports.get(0).getIsoRegion() + ")";
         } else {
             return gpsCode;
         }
